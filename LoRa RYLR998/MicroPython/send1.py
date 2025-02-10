@@ -1,8 +1,13 @@
-from machine import UART, Pin
-import time, random
+from machine import UART, Pin, I2C
+import time, random, ssd1306
 
+i2c = I2C(1,scl=Pin(15), sda=Pin(14))
 uart0 = UART(0, baudrate=115200, tx=Pin(12), rx=Pin(13)) #inicializar uart0
 led = Pin(25, Pin.OUT) #prueba funcionamiento con led
+
+oled_width = 128
+oled_height = 64
+oled = ssd1306.SSD1306_I2C(oled_width, oled_height, i2c, addr=0x3C)
 
 def send_ms(ms):
     uart0.write(ms + "\r\n") #mandar mensaje
@@ -46,6 +51,11 @@ while True:
     data = str(value0) + ',' + str(value1) + ',' + str(value2) #convertir en string
     data_len = str(len(data))
     send_ms('AT+SEND=32323,' + data_len + ',' + data) #"AT+SEND=AddressToSent+len_data+data
+    
+    oled.fill(0)
+    oled.text('AT+SEND=32323,',0,20)
+    oled.text(data_len + ',' + data,0,30)
+    oled.show()
     
     led.value(1)
     time.sleep(1)
