@@ -30,11 +30,7 @@ Proyecto de internet de las cosas con convergencia en la ciberseguridad. Propós
 
 ### Modulo lora
 
-<p align="center">
-    <a href="https://www.amazon.com/-/es/M%C3%B3dulo-interfaz-RYLR998-certificaci%C3%B3n-antena/dp/B099RM1XMG">
-        <imag scr="Images/rylr998.png" alt="modulo lora" width="300">
-    </a>
-</p>
+[![LoRa](Images/rylr998.png)](https://www.amazon.com/-/es/M%C3%B3dulo-interfaz-RYLR998-certificaci%C3%B3n-antena/dp/B099RM1XMG)
 
 Modulo lora que funciona por _UART_ siendo muy versátil y útil para microcontroladores simples. La forma en la que funciona este modulo es por comandos que el mismo fabricante recomienda usar y se pueden ver en el [manual](Documents/LoRa_AT_Command_RYLR998_RYLR498_EN.pdf).
 
@@ -52,11 +48,7 @@ Básicos comandos a usar:
 
 ### Raspberry pi pico
 
-<p align="center">
-    <a href="https://www.raspberrypi.com/documentation/microcontrollers/pico-series.html#pico-1-family">
-        <imag src="Images/pi_pico.png" alt="rp pi pico" width="300">
-    </a>
-</p>
+[![RP PICO](Images/pi_pico.png)](https://www.raspberrypi.com/documentation/microcontrollers/pico-series.html#pico-1-family)
 
 La **Raspberry Pi Pico** es una placa de desarrollo económica y versátil basada en el microcontrolador **RP2040**, diseñado por Raspberry Pi. Es ideal para proyectos de electrónica, IoT, robótica y más.
 
@@ -101,11 +93,7 @@ while True:
 
 ### Raspberry pi 4
 
-<p align="center">
-    <a href="https://www.raspberrypi.com/products/raspberry-pi-4-model-b/specifications/">
-        <imag src="Images/pi4.png" alt="raspberrypi 4" width="300">
-    </a>
-</p>
+[![RPI4](Images/pi4.png)](https://www.raspberrypi.com/products/raspberry-pi-4-model-b/specifications/)
 
 La **Raspberry Pi 4** es una potente computadora de placa única (SBC) diseñada para una amplia gama de aplicaciones, desde proyectos educativos hasta servidores domésticos y sistemas embebidos. Es la versión más avanzada de la serie Raspberry Pi, con mejoras significativas en rendimiento y conectividad.
 
