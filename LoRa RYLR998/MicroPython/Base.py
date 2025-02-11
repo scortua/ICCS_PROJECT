@@ -2,11 +2,11 @@ import serial, time
 
 uart0 = serial.Serial("/dev/ttyS0", baudrate=115200, timeout=1)
 
-VarInMs = 7 #variables recibidas en el mensaje
+VarInMs = 6 #variables recibidas en el mensaje
 CommasInMs = VarInMs - 1 #comas en el mensaje
 
 def send_ms(ms):
-    uart0.write(ms + '\r\n')
+    uart0.write((ms + "\r\n").encode())
     print(ms)
     time.sleep(0.1)
     rec = bytes()
@@ -71,6 +71,6 @@ while True:
     else:
         print("Not enough data received")
 
-    time.sleep(0.5)
+    time.sleep(0.75)
 
 
