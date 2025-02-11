@@ -1,23 +1,19 @@
-from machine import UART, Pin
-import time
+import serial, time
 
-uart0 = UART(0, baudrate=115200, tx=Pin(12), rx=Pin(13))
+uart0 = serial.Serial("/dev/ttyS0", baudrate=115200, timeout=1)
 
-# +RVC= address, len, temp, hum, rssi, snr
-VarInMs = 6 #variables recibidas en el mensaje
+VarInMs = 7 #variables recibidas en el mensaje
 CommasInMs = VarInMs - 1 #comas en el mensaje
 
 def send_ms(ms):
-    uart0.write(ms + "\r\n") #mandar mensaje
-    print(ms) #imprimir mensaje
-    time.sleep(0.5)
+    uart0.write(ms + '\r\n')
+    print(ms)
+    time.sleep(0.1)
     rec = bytes()
-    rec_ms = False
-    while uart0.any()>0:
-        rec += uart0.read(1) #recibe datos por uart como char y los concatena
-        rec_ms = True
-    if rec_ms == True:
-        print(rec.decode('utf-8'))  #Imprime el caracter recibido
+    while uart0.in_waiting>0:
+        rec += uart0.read(1)
+    print(rec.decode('utf-8'))
+    time.sleep(0.1)
 
 def write_txt(name,datos):
     try:
@@ -32,7 +28,7 @@ def write_txt(name,datos):
 print("\nConfigurando parametro antena LoRa\n")
 time.sleep(1)
 send_ms("AT") #verificar estado de comandos
-time.sleep(0.1) 
+time.sleep(0.1)
 send_ms("AT+RESET") #resetea valores de lora
 time.sleep(0.1)
 send_ms("AT+IPR?") #verificacion baudrate
@@ -54,26 +50,27 @@ time.sleep(0.1)
 
 while True:
     rxData = bytes()
-    while uart0.any()>0:
+    while uart0.in_waiting>0:
         rxData += uart0.read(1)
     msg = rxData.decode('utf-8')
     print('\n' + msg)
     new_msg = msg.replace('+RCV=', '')
-    datos = new_msg.split(',')
+    dats = new_msg.split(",")
 
-    # Verifica si se recibieron suficientes datos
-    if len(datos) >= VarInMs: 
-        id = datos[0]
-        data_len = datos[1]
-        temp = datos[2]
-        hum = datos[3]
-        rssi = datos[4]
-        snr = datos[5]
-        print(f"ID: {id}, Data Len: {data_len}, Data0: {temp}, Data1: {hum}, RSSI: {rssi}, SNR: {snr}")
-    
-        data_list = [id, data_len, temp, hum, rssi, snr] # Crear una lista con los datos
-        write_txt("datos.txt", data_list) # Escribir los datos en el archivo
+    if len(dats) == VarInMs:
+        id = dats[0]
+        dat_len = dats[1]
+        temp = dats[2]
+        hum = dats[3]
+        rssi = dats[4]
+        snr = dats[5]
+        print(f"ID: {id}, Data Length: {dat_len}, Temp: {temp}, Hum: {hum}, RSSI: {rssi}, SNR: {snr}")
+
+        data_list = [id, dat_len, temp, hum, rssi, snr]
+        write_txt("data.txt", data_list)
     else:
-        print(f"Error: Número de datos recibidos ({len(datos)}) no coincide con lo esperado ({VarInMs})")
-   
-    time.sleep(10)
+        print("Not enough data received")
+
+    time.sleep(0.5)
+
+
