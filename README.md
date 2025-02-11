@@ -1,27 +1,24 @@
 ![Badge en desarrollo](https://img.shields.io/badge/STATUS-EN%20DESAROLLO-green) ![Badge License](https://img.shields.io/badge/License-MIT-yellow)
+
 ![Git](https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white) ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54) ![C++](https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white) ![C](https://img.shields.io/badge/c-%2300599C.svg?style=for-the-badge&logo=c&logoColor=white) ![Raspberry Pi](https://img.shields.io/badge/-Raspberry_Pi-C51A4A?style=for-the-badge&logo=Raspberry-Pi) ![LoRaWAN](https://img.shields.io/badge/LoRaWAN-blue?style=for-the-badge&logo=lorawan&logoColor=white)
 
 [![Escuela Colombiana Ingenieros](Images/Logotipo_eci.png)](https://www.escuelaing.edu.co/)
 
 # ICCS_PROJECT
-Proyecto de internet de las cosas con convergencia en la ciberseguridad. Propósito de tener un proyecto que obtenga señales físicas y se actue a esas señales a partir de un microcontrolador y que se use un tipo de comunicación muy usado mundialmente, para conectarse a un servidor local que permita guardar los datos y mantenerlos seguros.
+Proyecto de internet de las cosas con convergencia en la ciberseguridad. Propósito de tener un proyecto que obtenga señales físicas y se actúe a esas señales a partir de un microcontrolador y que se use un tipo de comunicación muy usado mundialmente, para conectarse a un servidor local que permita guardar los datos y mantenerlos seguros.
 
-## Indice
+## Índice
 * [Propuesta Proyecto](#-PROYECTO-PROPUESTO)
-* [Idea Conexión](#proyecto-propuesto)
 * [Componentes a Usar](#componentes-a-usar)
-
-* [Concepto LoRa](#-Concepto-LoRa)
-* [Concepto Sensores](#concepto-Sensores)
-* [Concepto Control LAN](#concepto-control-lan)
-* [Concepto Control WAN](#concepto-control-wan)
+* [LoRa](#LoRa)
+* [Función Sensores](#Función-Sensores)
+* [Conexiones](#conexiones)
+* [Control LAN](#control-lan)
+* [Control WAN](#control-wan)
 * [Licencia](#licencia)
 
 
 ## PROYECTO PROPUESTO
-
-
-## Idea Conexión
 
 
 ## Componentes a Usar
@@ -48,7 +45,7 @@ Básicos comandos a usar:
 
 ### Raspberry pi pico
 
-[![RP PICO](Images/pi_pico.png)](https://www.raspberrypi.com/documentation/microcontrollers/pico-series.html#pico-1-family)
+[![PI PICO](Images/pi_pico.png)](https://www.raspberrypi.com/documentation/microcontrollers/pico-series.html#pico-1-family)
 
 La **Raspberry Pi Pico** es una placa de desarrollo económica y versátil basada en el microcontrolador **RP2040**, diseñado por Raspberry Pi. Es ideal para proyectos de electrónica, IoT, robótica y más.
 
@@ -113,6 +110,8 @@ La **Raspberry Pi 4** es una potente computadora de placa única (SBC) diseñada
 - Voltaje de entrada: **5V** mediante conector **USB-C**.
 - Consumo de energía optimizado para proyectos embebidos.
 
+[Descripción pines python](https://gpiozero.readthedocs.io)
+
 ```python
 from gpiozero import LED
 from time import sleep
@@ -127,17 +126,77 @@ while True:
 ```
 </details>
 
-## Concepto LoRa
+<details>
+
+<summary>Temperatura y Humedad DHT22</summary>
+
+## DHT22
+
+[![DHT22](Images/DHT22-Sensor-Pinout.png)](https://www.instructables.com/Raspberry-Pi-Pico-DHT22-AM2302-Temperature-Sensor-/)
+
+El DHT22 es un sensor digital que mide la temperatura y la humedad relativa del ambiente. Es muy utilizado en proyectos de electrónica, IoT y automatización del hogar debido a su precisión y facilidad de uso.
+
+Características Principales
+Rango de medición de temperatura: -40°C a 80°C (±0.5°C de precisión).
+
+Rango de medición de humedad: 0% a 100% (±2% de precisión).
+
+Salida digital: Proporciona los datos en formato digital, lo que facilita su lectura con microcontroladores como Arduino, Raspberry Pi, ESP8266, etc.
+
+Frecuencia de muestreo: Realiza una medición cada 2 segundos (no es recomendable leerlo más rápido).
+
+Alimentación: Funciona con un voltaje de 3.3V a 5V.
+
+Conexión: Tiene 3 o 4 pines (dependiendo del modelo):
+
+VCC: Alimentación (3.3V o 5V).
+
+GND: Conexión a tierra.
+
+Data: Pin de comunicación digital (envía los datos al microcontrolador).
+
+NC (opcional): Pin no conectado (no se usa).
+
+</details>
+
+## LoRa
 ![LoRaWAN](Images/LoRaWAN_Logo.png)
  
+Los módulos LoRa (Long Range) son dispositivos de comunicación inalámbrica diseñados para transmitir datos a largas distancias con bajo consumo de energía. Son ampliamente utilizados en aplicaciones de Internet de las Cosas (IoT) debido a su capacidad para conectar dispositivos en áreas extensas y de difícil acceso.
 
-## Concepto Sensores
+¿Qué es LoRa?
+LoRa es una tecnología de modulación inalámbrica que permite la comunicación de largo alcance (hasta varios kilómetros en áreas abiertas) con un bajo consumo de energía. Utiliza frecuencias de radio libres (como 868 MHz en Europa o 915 MHz en América) y es ideal para aplicaciones donde no se requiere una alta velocidad de transmisión, pero sí una gran cobertura y eficiencia energética.
+
+- LoRaWAN es un protocolo de red que utiliza la tecnología LoRa para conectar dispositivos IoT a servidores en la nube. Proporciona:
+- Seguridad: Cifrado de extremo a extremo.
+- Escalabilidad: Soporta miles de dispositivos en una misma red.
+- Modos de operación: Clase A (bajo consumo), Clase B (latencia controlada) y Clase C (sin latencia).
+
+## Función Sensores
+
+<details>
+<summary>Temperatura y Humedad</summary>
+
+</details>
+
+<details>
+<summary>Ventilación</summary>
+
+</details>
+
+<details>
+<summary>Ultravioleta</summary>
+
+</details>
 
 
-## Concepto Control LAN
+## Conexiones
 
 
-## Concepto Control WAN
+## Control LAN
+
+
+## Control WAN
 
 
 ## Licencia
