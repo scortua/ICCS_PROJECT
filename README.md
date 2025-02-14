@@ -13,8 +13,7 @@ Proyecto de internet de las cosas con convergencia en la ciberseguridad. Propós
 * [LoRa](#LoRa)
 * [Función Sensores](#Función-Sensores)
 * [Conexiones](#conexiones)
-* [Control LAN](#control-lan)
-* [Control WAN](#control-wan)
+* [Base de datos local](#base-datos-local)
 * [Licencia](#licencia)
 
 
@@ -193,11 +192,68 @@ LoRa es una tecnología de modulación inalámbrica que permite la comunicación
 ## Conexiones
 
 
-## Control LAN
+## Base datos local
 
+Se usa _mariadb_ para la crear las bases de datos porque es una extensión de _mysql_.
 
-## Control WAN
+Primero se actualiza el sistema
+```bash
+sudo apt-get update
+sudo pat-get upgrade
+```
 
+Se descarga mariaDB-mysql en la raspberry pi 4.
+```bash
+sudo apt install mariadb-server 
+```
+
+Se descarga el complemento para _python_.
+```bash
+sudo apt-get install python-mysqldb
+```
+
+<details>
+<summary>Enlace a servidor local</summary>
+
+Ingresamos al host de mysql.
+```bash
+sudo mysql -u root
+```
+Creamos la base de datos del ***Invernadero***
+```SQL
+CREATE DATABASE Invernadero;
+```
+Nos adentramos en la base de datos
+```SQL
+USE Invernadero;
+```
+Creamos la tabla DHT22
+```SQL
+CREATE TABLE DHT22 (time TIMESTAMP, Temperatura FLOAT, Humedad FLOAT);
+```
+Ahora es mostrar la tabla
+```SQL
+DESCRIBE DHT22;
+```
+Ahora, se crea el usuario host
+```SQL
+CREATE USER 'RPI4'@'localhost' IDENTIFIED BY 'raspberry4';
+```
+Se otorgan permisos
+```SQL
+GRANT ALL PRIVILEGES ON *.* TO 'RPI4'@'localhost'
+```
+Y para conectar la base de datos al sistema con python
+```Python
+name_db = MYSQLdb.connect(host="localhost",user="RPI4",passwd="1234567890",db="Invernadero") #conexión con MYSQL/MariaDB 
+```
+
+</details>
+
+<details>
+<summary>Enlace a servidor web</summary>
+
+<details>
 
 ## Licencia
 

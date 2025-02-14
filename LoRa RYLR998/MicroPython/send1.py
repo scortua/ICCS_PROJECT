@@ -12,7 +12,24 @@ dht = PicoDHT22(Pin(7,Pin.IN,Pin.PULL_UP))
 oled_width = 128
 oled_height = 64
 oled = ssd1306.SSD1306_I2C(oled_width, oled_height, i2c)
-
+      
+def loading(x):
+    oled.text('#',x,40)
+    oled.show()
+    
+def scroll_in_out(display):
+    for i in range (0,(oled_width+1)*2,1):
+        for line in display:
+            oled.text(line[2],-oled_width+i,line[1])
+        oled.show()
+        if i!=oled_width:
+            oled.fill(0)
+        
+def init_rp():
+    muestra=[[0,20,'INICIANDO'],[20,40,'<-O_O->']]
+    scroll_in_out(muestra)
+    time.sleep(2)
+    
 def send_ms(ms):
     uart0.write(ms + "\r\n") #mandar mensaje
     print(ms) #imprimir mensaje
@@ -21,40 +38,54 @@ def send_ms(ms):
     while uart0.any()>0:
         rec += uart0.read(1) #recibe datos por uart como char y los concatena
     print(rec.decode('utf-8'))  #Imprime el caracter recibido
-        
+   
 def init_lora():
     print("\nConfigurando parametro antena LoRa\n")
     time.sleep(1)
+    loading(12)
     send_ms("AT") #verificar estado de comandos
-    time.sleep(0.1) 
+    time.sleep(0.1)
+    loading(20)
     send_ms("AT+RESET") #resetea valores de lora
     time.sleep(0.1)
+    loading(28)
     send_ms("AT+IPR?") #verificacion baudrate
     time.sleep(1)
+    loading(36)
     send_ms("AT+ADDRESS=32321") #colocar direccion lora 0 - 65535
     time.sleep(0.1)
+    loading(44)
     send_ms("AT+NETWORKID=13") #colocando direccion de red
     time.sleep(0.1)
+    loading(52)
     send_ms("AT+BAND=915000000") #RF frecuency
     time.sleep(0.1)
+    loading(60)
     send_ms("AT+PARAMETER=8,7,1,12") #RF parameters
     time.sleep(0.1)
+    loading(68)
     send_ms("AT+CRFOP?") #RF output power
     time.sleep(0.1)
+    loading(76)
     send_ms("AT+MODE?") #operation mode
     time.sleep(0.1)
+    loading(84)
     send_ms("AT+CPIN?") #contraseña
     time.sleep(0.1)
+    loading(92)
     
 def lcd(message):
     oled.fill(0)
     oled.text(message[0],0,0)
-    oled.text('Length: ' + message[1],0,20)
-    oled.text('Tem: ' + message[2][0:4],0,30) # xx.x°C -> 0:3   4 comma
-    oled.text('Hum: ' + message[2][5:],0,40) # xx.x% -> 5:final
+    oled.text('Tamanio: ' + message[1],0,20)
+    oled.text('Temperaura:' + message[2][0:4],0,30) # xx.x°C -> 0:3   4 comma
+    oled.text('Humedad:' + message[2][5:],0,40) # xx.x% -> 5:final
     oled.show()
 
 # Inicializar LoRa
+init_rp()
+oled.text('Config LoRa',15,20)
+oled.show()
 init_lora()
 
 while True:
