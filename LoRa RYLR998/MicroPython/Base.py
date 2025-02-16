@@ -26,27 +26,27 @@ def write_txt(name,datos):
         print(f"Error writing to file: {e}")
 
 print("\nConfigurando parametro antena LoRa\n")
-time.sleep(1)
+time.sleep(0.5)
 send_ms("AT") #verificar estado de comandos
-time.sleep(0.1)
+time.sleep(1)
 send_ms("AT+RESET") #resetea valores de lora
-time.sleep(0.1)
+time.sleep(1)
 send_ms("AT+IPR?") #verificacion baudrate
 time.sleep(1)
 send_ms("AT+ADDRESS=32323") #colocar direccion lora 0 - 65535
-time.sleep(0.1)
+time.sleep(1)
 send_ms("AT+NETWORKID=13") #colocando direccion de red
-time.sleep(0.1)
+time.sleep(1)
 send_ms("AT+BAND=915000000") #RF frecuency
-time.sleep(0.1)
+time.sleep(1)
 send_ms("AT+PARAMETER=8,7,1,12") #RF parameters
-time.sleep(0.1)
+time.sleep(1)
 send_ms("AT+CRFOP?") #RF output power
-time.sleep(0.1)
+time.sleep(1)
 send_ms("AT+MODE?") #operation mode
-time.sleep(0.1)
+time.sleep(1)
 send_ms("AT+CPIN?") #contraseña
-time.sleep(0.1)
+time.sleep(1)
 
 while True:
     rxData = bytes()
@@ -69,8 +69,7 @@ while True:
         data_list = [id, dat_len, temp, hum, rssi, snr]
         write_txt("data.txt", data_list)
     else:
-        print("Not enough data received")
-
-    time.sleep(0.75)
+        print(f"Error: {dats} \t ({len(dats)}) de ({VarInMs})")
+    time.sleep(1)
 
 

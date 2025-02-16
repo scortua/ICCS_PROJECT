@@ -12,12 +12,9 @@ def send_ms(ms):
     print(ms) #imprimir mensaje
     time.sleep(0.5)
     rec = bytes()
-    rec_ms = False
     while uart0.any()>0:
         rec += uart0.read(1) #recibe datos por uart como char y los concatena
-        rec_ms = True
-    if rec_ms == True:
-        print(rec.decode('utf-8'))  #Imprime el caracter recibido
+    print(rec.decode('utf-8'))  #Imprime el caracter recibido
 
 def write_txt(name,datos):
     try:
@@ -30,37 +27,36 @@ def write_txt(name,datos):
         print(f"Error writing to file: {e}")
 
 print("\nConfigurando parametro antena LoRa\n")
-time.sleep(1)
+time.sleep(0.5)
 send_ms("AT") #verificar estado de comandos
-time.sleep(0.1) 
+time.sleep(1) 
 send_ms("AT+RESET") #resetea valores de lora
-time.sleep(0.1)
+time.sleep(1)
 send_ms("AT+IPR?") #verificacion baudrate
 time.sleep(1)
-send_ms("AT+ADDRESS=32323") #colocar direccion lora 0 - 65535
-time.sleep(0.1)
-send_ms("AT+NETWORKID=13") #colocando direccion de red
-time.sleep(0.1)
+send_ms("AT+ADDRESS=2") #colocar direccion lora 0 - 65535
+time.sleep(1)
+send_ms("AT+NETWORKID=5") #colocando direccion de red
+time.sleep(1)
 send_ms("AT+BAND=915000000") #RF frecuency
-time.sleep(0.1)
-send_ms("AT+PARAMETER=8,7,1,12") #RF parameters
-time.sleep(0.1)
+time.sleep(1)
+send_ms("AT+PARAMETER=9,7,1,12") #RF parameters
+time.sleep(1)
 send_ms("AT+CRFOP?") #RF output power
-time.sleep(0.1)
+time.sleep(1)
 send_ms("AT+MODE?") #operation mode
-time.sleep(0.1)
+time.sleep(1)
 send_ms("AT+CPIN?") #contraseña
-time.sleep(0.1)
+time.sleep(1)
 
 while True:
     rxData = bytes()
     while uart0.any()>0:
         rxData += uart0.read(1)
     msg = rxData.decode('utf-8')
-    print('\n' + msg)
+    print(msg)
     new_msg = msg.replace('+RCV=', '')
     datos = new_msg.split(',')
-
     # Verifica si se recibieron suficientes datos
     if len(datos) >= VarInMs: 
         id = datos[0]
@@ -74,6 +70,6 @@ while True:
         data_list = [id, data_len, temp, hum, rssi, snr] # Crear una lista con los datos
         write_txt("datos.txt", data_list) # Escribir los datos en el archivo
     else:
-        print(f"Error: Número de datos recibidos ({len(datos)}) no coincide con lo esperado ({VarInMs})")
+        print(f"Error: {datos} \t ({len(datos)}) de ({VarInMs})")
    
-    time.sleep(10)
+    time.sleep(0.5)
