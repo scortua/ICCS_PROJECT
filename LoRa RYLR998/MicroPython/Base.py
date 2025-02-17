@@ -23,16 +23,6 @@ def send_ms(ms):
     print(rec.decode('utf-8'))
     time.sleep(0.1)
 
-def write_txt(name,datos):
-    try:
-        with open(name, 'w') as f:
-            for item in datos:
-                f.write(str(item) + ',')
-            f.write('\n')  # Add a newline at the end of the line
-        print(f"Data written to {name}")
-    except OSError as e:
-        print(f"Error writing to file: {e}")
-
 print("\nConfigurando parametro antena LoRa\n")
 time.sleep(0.5)
 send_ms("AT") #verificar estado de comandos
@@ -73,17 +63,13 @@ while True:
         rssi = dats[4]
         snr = dats[5]
         print(f"ID: {id}, Data Length: {dat_len}, Temp: {temp}, Hum: {hum}, RSSI: {rssi}, SNR: {snr}")
-
-        data_list = [id, dat_len, temp, hum, rssi, snr]
-        write_txt("data.txt", data_list)
-
-        cursor.execute('''INSERT INTO DHT22 (Temperatura, Humedad) VALUES (%s, %s);''',(temp,hum))
+        cursor.execute('''INSERT INTO DHT22 (time,Temperatura, Humedad) VALUES (NOW(),%s, %s);''',(temp,hum))
         db.commit()
         print("Data saved to database")
 
     else:
         print(f"Error: {dats} \t ({len(dats)}) de ({VarInMs})")
-        cursor.execute('''INSERT INTO DHT22 (Temperatura, Humedad) VALUES (%s, %s);''',(0.0,0.0))
+        cursor.execute('''INSERT INTO DHT22 (time,Temperatura, Humedad) VALUES (NOW(),%s, %s);''',(0.0,0.0))
         db.commit()
         print("Data saved to database")
 
