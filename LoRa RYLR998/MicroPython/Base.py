@@ -1,4 +1,13 @@
 import serial, time
+import datetime
+import MySQLdb
+
+db = MySQLdb.connect(host="localhost", 
+                     user="RPI4",
+                     passwd="1234567890",
+                     db="Invernadero") # Conectar a la base de datos
+
+cursor = db.cursor() # Crear un cursor
 
 uart0 = serial.Serial("/dev/ttyS0", baudrate=115200, timeout=1)
 
@@ -68,6 +77,11 @@ while True:
 
         data_list = [id, dat_len, temp, hum, rssi, snr]
         write_txt("data.txt", data_list)
+
+        cursor.execute(f"INSERT INTO Data (Temperatura, Humedad) VALUES ({temp}, {hum})")
+        db.commit()
+        print("Data saved to database")
+
     else:
         print(f"Error: {dats} \t ({len(dats)}) de ({VarInMs})")
     time.sleep(1)

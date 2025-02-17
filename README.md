@@ -243,9 +243,22 @@ Se otorgan permisos
 ```SQL
 GRANT ALL PRIVILEGES ON *.* TO 'RPI4'@'localhost'
 ```
+Para ver las bases de datos se usa:
+```SQL
+SHOW DATABASES;
+SHOW TABLES;
+```
 Y para conectar la base de datos al sistema con python
 ```Python
 name_db = MYSQLdb.connect(host="localhost",user="RPI4",passwd="1234567890",db="Invernadero") #conexión con MYSQL/MariaDB 
+cursor = db.cursor() # crear cursor
+
+cursor.execute(f"INSERT INTO Data (Temperatura, Humedad) VALUES ({temp}, {hum})") # ingresar datos
+db.commit() # 
+```
+Para verificar lo que ha pasado en la base de datos se va a SQL
+```SQL
+SELECT * FROM DHT22;
 ```
 
 </details>
