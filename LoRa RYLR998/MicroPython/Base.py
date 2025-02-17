@@ -1,10 +1,9 @@
 import serial, time
-import datetime
 import MySQLdb
 
 db = MySQLdb.connect(host="localhost", 
                      user="RPI4",
-                     passwd="1234567890",
+                     passwd="raspberry4",
                      db="Invernadero") # Conectar a la base de datos
 
 cursor = db.cursor() # Crear un cursor
@@ -42,13 +41,13 @@ send_ms("AT+RESET") #resetea valores de lora
 time.sleep(1)
 send_ms("AT+IPR?") #verificacion baudrate
 time.sleep(1)
-send_ms("AT+ADDRESS=32323") #colocar direccion lora 0 - 65535
+send_ms("AT+ADDRESS=2") #colocar direccion lora 0 - 65535
 time.sleep(1)
 send_ms("AT+NETWORKID=13") #colocando direccion de red
 time.sleep(1)
 send_ms("AT+BAND=915000000") #RF frecuency
 time.sleep(1)
-send_ms("AT+PARAMETER=8,7,1,12") #RF parameters
+send_ms("AT+PARAMETER=9,7,1,12") #RF parameters
 time.sleep(1)
 send_ms("AT+CRFOP?") #RF output power
 time.sleep(1)
@@ -78,12 +77,16 @@ while True:
         data_list = [id, dat_len, temp, hum, rssi, snr]
         write_txt("data.txt", data_list)
 
-        cursor.execute(f"INSERT INTO Data (Temperatura, Humedad) VALUES ({temp}, {hum})")
+        cursor.execute('''INSERT INTO DHT22 (Temperatura, Humedad) VALUES (%s, %s);''',(temp,hum))
         db.commit()
         print("Data saved to database")
 
     else:
         print(f"Error: {dats} \t ({len(dats)}) de ({VarInMs})")
+        cursor.execute('''INSERT INTO DHT22 (Temperatura, Humedad) VALUES (%s, %s);''',(0.0,0.0))
+        db.commit()
+        print("Data saved to database")
+
     time.sleep(1)
 
 
