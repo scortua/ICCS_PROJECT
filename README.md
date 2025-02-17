@@ -241,7 +241,7 @@ CREATE USER 'RPI4'@'localhost' IDENTIFIED BY 'raspberry4';
 ```
 Se otorgan permisos
 ```SQL
-GRANT ALL PRIVILEGES ON *.* TO 'RPI4'@'localhost'
+GRANT ALL PRIVILEGES ON *.* TO 'RPI4'@'localhost';
 ```
 Para ver las bases de datos se usa:
 ```SQL

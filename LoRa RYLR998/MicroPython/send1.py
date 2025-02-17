@@ -92,9 +92,7 @@ while True:
     #value0 = random.randint(-100,100)
     
     # Funcion sensor dht
-    #T, H = dht.read()
-    T = 20.0
-    H = 71.2
+    T, H = dht.read()
     
     data = str(T) + ',' + str(H) #convertir en string
     data_len = str(len(data))
