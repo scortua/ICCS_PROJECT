@@ -15,14 +15,10 @@ def send_ms(ms):
         rec += uart0.read(1) #recibe datos por uart como char y los concatena
     print(rec.decode('utf-8'))  #Imprime el caracter recibido
     
-def send_data(T,H):
-    data = str(T) + ',' + str(H) #convertir en string
-    data_len = str(len(data))
-    print(f'T={T}°C H={H}')
-    send_ms('AT+SEND=2,' + data_len + ',' + data) #"AT+SEND=AddressToSent+len_data+t,h
     
 def init_lora():
     print("\nConfigurando parametro antena LoRa\n")
+    time.sleep(2)
     send_ms("AT") #verificar estado de comandos
     time.sleep(1)
     send_ms("AT+ADDRESS=1") #colocar direccion lora 0 - 65535
@@ -41,14 +37,17 @@ def init_lora():
 
 # Inicializar LoRa
 init_lora()
+time.sleep(1)
 while True:
     #value0 = random.randint(-100,100)
-    
     # Funcion sensor dht
-    T,H = dht.read()
-    #T = random.randint(0,100)
-    #H = random.randint(0,100)
-    send_data(T,H)
+    #T,H = dht.read()
+    T = random.randint(0,100)
+    H = random.randint(0,100)
+    data = str(T) + ',' + str(H) #convertir en string
+    data_len = str(len(data))
+    print(f'T={T}°C H={H}')
+    send_ms('AT+SEND=2,' + data_len + ',' + data) #"AT+SEND=AddressToSent+len_data+t,h
     led.value(1)
     time.sleep(10)
     led.value(0)

@@ -2,9 +2,10 @@ from machine import UART, Pin
 import time
 
 uart0 = UART(0, baudrate=115200, tx=Pin(0), rx=Pin(1))
+led = Pin(25,Pin.OUT)
 
 # +RVC= address, len, temp, hum, rssi, snr
-VarInMs = 6 #variables recibidas en el mensaje
+VarInMs = 5 #variables recibidas en el mensaje
 CommasInMs = VarInMs - 1 #comas en el mensaje
 
 def send_ms(ms):
@@ -44,11 +45,9 @@ while True:
     new_msg = msg.replace('+RCV=', '')
     datos = new_msg.split(',')
     # Verifica si se recibieron suficientes datos
-    if len(datos) == VarInMs: 
-        print(datos)
-    else:
-        print(f"Error: {datos} \t ({len(datos)}) de ({VarInMs})")
-   
-    time.sleep(7)
+    led.value(1)
+    time.sleep(1)
+    led.value(0)
+    time.sleep(1)
 
 
