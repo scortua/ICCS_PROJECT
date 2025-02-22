@@ -64,8 +64,8 @@ void loop() {
     // Obtener el valor de las variables del mensaje
     String txId = rxData.substring(0, keyPos[1]);
     String dataLen = rxData.substring(keyPos[1] + 1, keyPos[2]);
-    String value1 = rxData.substring(keyPos[2] + 1, keyPos[3]);
-    String value2 = rxData.substring(keyPos[3] + 1, keyPos[4]);
+    String Temperature = rxData.substring(keyPos[2] + 1, keyPos[3]);
+    String Humedity = rxData.substring(keyPos[3] + 1, keyPos[4]);
     String rssi = rxData.substring(keyPos[4] + 1, keyPos[5]);
     String snr = rxData.substring(keyPos[5] + 1);
 
@@ -83,13 +83,13 @@ void loop() {
     // Imprimir las variables del mensaje
     Serial.print("TxId: " + txId);
     Serial.print(" Length: " + dataLen);
-    Serial.print(" Value 1: " + value1);
-    Serial.print(" Value 2: " + value2);
+    Serial.print(" Temp: " + Temperature);
+    Serial.print(" Hume: " + Humedity);
     Serial.print(" RSSI: " + rssi);
     Serial.println(" SNR: " + snr);
 
     digitalWrite(LED_PIN, HIGH);
     delay(1000);
     digitalWrite(LED_PIN, LOW);
-    delay(1000);
+    delay(500);
 }

@@ -1,4 +1,5 @@
 #include <SoftwareSerial.h>
+#include "DHT.h"
 
 // Definir pines para UART
 #define RX 1
@@ -9,9 +10,12 @@ SoftwareSerial myserial(RX, TX); // RX, TX
 // Definir pines para DHT22 y LED
 #define DHT_PIN 14
 #define LED_PIN 25
+#define dhtPIN 14
+#define dhtTYPE DHT22
+DHT dht(dhtPIN, dhtTYPE);
 
 // Variables para almacenar temperatura y humedad
-int temperature = 0, humidity = 0;
+float temperature = 0.0, humidity = 0.0;
 
 void send_ms(String ms) {
     myserial.println(ms); // mandar mensaje
@@ -44,6 +48,7 @@ void setup() {
     myserial.begin(115200);
     pinMode(LED_PIN, OUTPUT);
     delay(5000);
+    dht.begin(); // Inicializar sensor DHT22
     // Inicializar LoRa
     init_lora();
 }
@@ -51,8 +56,8 @@ void setup() {
 void loop() {
     // Aquí deberías leer los valores del sensor DHT22
     // Por simplicidad, usaremos valores aleatorios
-    temperature = random(0, 100);
-    humidity = random(0, 100);
+    temperature = dht.readHumidity();
+    humidity = dht.readTemperature();
 
     String data = String(temperature) + "," + String(humidity);
     String datalen = String(data.length());
