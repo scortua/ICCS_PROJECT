@@ -1,5 +1,6 @@
 #include <SoftwareSerial.h>
 #include "DHT.h"
+#include <Adafruit_NeoPixel.h>
 
 // Definir pines para UART
 #define RX 1
@@ -7,12 +8,14 @@
 
 SoftwareSerial myserial(RX, TX); // RX, TX
 
-// Definir pines para DHT22 y LED
-#define DHT_PIN 14
 #define LED_PIN 25
 #define dhtPIN 14
 #define dhtTYPE DHT22
 DHT dht(dhtPIN, dhtTYPE);
+
+#define PIN       23
+#define NUMPIXELS 1
+Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
 // Variables para almacenar temperatura y humedad
 float temperature = 0.0, humidity = 0.0;
@@ -48,14 +51,15 @@ void setup() {
     myserial.begin(115200);
     pinMode(LED_PIN, OUTPUT);
     delay(5000);
-    dht.begin(); // Inicializar sensor DHT22
+    dht.begin(); 
     // Inicializar LoRa
     init_lora();
+    // Inicializar NeoPixel
+    pixels.begin();
+    pixels.show(); // Inicializar todos los píxeles a 'apagado'
 }
 
 void loop() {
-    // Aquí deberías leer los valores del sensor DHT22
-    // Por simplicidad, usaremos valores aleatorios
     temperature = dht.readHumidity();
     humidity = dht.readTemperature();
 
@@ -64,6 +68,11 @@ void loop() {
     Serial.println("Sending data: " + data);
     send_ms("AT+SEND=2," + datalen + "," + data); // Enviar datos
     digitalWrite(LED_PIN, HIGH);
-    delay(10000);
+    delay(6000);
     digitalWrite(LED_PIN, LOW);
+    delay(3000);
+
+    // Encender NeoPixel con color azul estilo ultravioleta
+    pixels.setPixelColor(0, pixels.Color(0, 0, 255)); // Azul
+    pixels.show();
 }

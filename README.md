@@ -10,10 +10,10 @@ Proyecto de internet de las cosas con convergencia en la ciberseguridad. Propós
 ## Índice
 * [Propuesta Proyecto](#-PROYECTO-PROPUESTO)
 * [Componentes a Usar](#componentes-a-usar)
-* [LoRa](#LoRa)
+* [LoRa WAN](#LoRa)
 * [Función Sensores](#Función-Sensores)
 * [Conexiones](#conexiones)
-* [Base de datos local](#base-datos-local)
+* [Base de datos](#base-datos-local)
 * [Licencia](#licencia)
 
 
@@ -33,8 +33,11 @@ Modulo lora que funciona por _UART_ siendo muy versátil y útil para microcontr
 Básicos comandos a usar:
 
 >"AT" -> Verificación de conectividad
->"AT+ADDRESS" -> Indicar dirección 
->"AT+NETWORKID" -> Indicar dirección de red
+>
+>"AT+ADDRESS=X" -> Indicar dirección 
+>
+>"AT+NETWORKID=Y" -> Indicar dirección de red
+>
 >"?" -> Al final de cualquier comando para verificar default
 
 </details>
@@ -159,7 +162,10 @@ NC (opcional): Pin no conectado (no se usa).
 </details>
 
 ## LoRa
-![LoRaWAN](Images/LoRaWAN_Logo.png)
+
+<p align="center">
+    <img src="Images/LoRaWAN_Logo.png" alt="LoRaWAN" width="300px">
+</p>
  
 Los módulos LoRa (Long Range) son dispositivos de comunicación inalámbrica diseñados para transmitir datos a largas distancias con bajo consumo de energía. Son ampliamente utilizados en aplicaciones de Internet de las Cosas (IoT) debido a su capacidad para conectar dispositivos en áreas extensas y de difícil acceso.
 
@@ -192,7 +198,7 @@ LoRa es una tecnología de modulación inalámbrica que permite la comunicación
 ## Conexiones
 
 
-## Base datos local
+## Base datos
 
 Se usa _mariadb_ para la crear las bases de datos porque es una extensión de _mysql_.
 
@@ -266,7 +272,11 @@ SELECT * FROM DHT22;
 <details>
 <summary>Enlace a servidor web</summary>
 
-<details>
+</details>
 
 ## Licencia
+
+Este proyecto está bajo la Licencia MIT, lo que significa que es de libre uso, modificación y distribución, siempre y cuando se incluya una copia de la licencia original en cualquier redistribución del software.
+
+[Licencia](/LICENSE), este es el documento donde se expresa la licencia y la libertad de usar con el nombre de los desarrolladores y la institución.
 

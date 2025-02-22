@@ -27,19 +27,11 @@ print("\nConfigurando parametro antena LoRa\n")
 time.sleep(0.5)
 send_ms("AT") #verificar estado de comandos
 time.sleep(0.1)
-send_ms("AT+RESET") #resetea valores de lora
-time.sleep(0.1)
-send_ms("AT+IPR?") #verificacion baudrate
-time.sleep(0.1)
 send_ms("AT+ADDRESS=2") #colocar direccion lora 0 - 65535
 time.sleep(0.1)
-send_ms("AT+NETWORKID=13") #colocando direccion de red
-time.sleep(0.1)
-send_ms("AT+BAND=915000000") #RF frecuency
+send_ms("AT+NETWORKID=5") #colocando direccion de red
 time.sleep(0.1)
 send_ms("AT+PARAMETER=9,7,1,12") #RF parameters
-time.sleep(0.1)
-send_ms("AT+CRFOP?") #RF output power
 time.sleep(0.1)
 send_ms("AT+MODE?") #operation mode
 time.sleep(0.1)

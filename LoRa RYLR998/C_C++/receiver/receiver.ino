@@ -44,7 +44,7 @@ void setup() {
     myserial.begin(115200);
     pinMode(LED_PIN, OUTPUT);
     delay(5000);
-
+    // inicializa el lora
     init_lora();
 }
 
