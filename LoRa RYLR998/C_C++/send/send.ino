@@ -16,6 +16,7 @@ DHT dht(dhtPIN, dhtTYPE);
 #define PIN       23
 #define NUMPIXELS 1
 Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+uint8_t  brightness = 180; 
 
 // Variables para almacenar temperatura y humedad
 float temperature = 0.0, humidity = 0.0;
@@ -57,6 +58,10 @@ void setup() {
     // Inicializar NeoPixel
     pixels.begin();
     pixels.show(); // Inicializar todos los píxeles a 'apagado'
+    // Encender NeoPixel con color azul estilo ultravioleta
+    pixels.setBrightness(brightness); // Brillo de 50% (0-255)
+    pixels.setPixelColor(0, pixels.Color(0, 0, 255)); // Azul
+    pixels.show();
 }
 
 void loop() {
@@ -66,13 +71,17 @@ void loop() {
     String data = String(temperature) + "," + String(humidity);
     String datalen = String(data.length());
     Serial.println("Sending data: " + data);
-    digitalWrite(LED_PIN, HIGH);
     send_ms("AT+SEND=2," + datalen + "," + data); // Enviar datos
-    delay(40000); // Esperar 1 segundo antes de enviar de nuevo
-    digitalWrite(LED_PIN, LOW);
-    delay(20000);
-
-    // Encender NeoPixel con color azul estilo ultravioleta
-    pixels.setPixelColor(0, pixels.Color(0, 0, 255)); // Azul
-    pixels.show();
+    int ms = 5;
+    // Encender LED con efecto de respiración
+    while (ms <= 46*(0.005*255)){
+        for (int i = 0; i <= 255; i++) {
+            analogWrite(LED_PIN, i);
+            delay(ms + 5);
+        }
+        for (int i = 255; i >= 0; i--) {
+            analogWrite(LED_PIN, i);
+            delay(ms + 5);
+        }
+    }
 }

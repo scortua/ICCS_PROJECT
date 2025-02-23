@@ -18,6 +18,8 @@ temp_min = 17.0
 hum_max = 75.0
 hum_min = 45.0
 counter = 0
+prev_temp = 0
+prev_hum = 0
 
 def send_ms(ms):
     uart0.write((ms + "\r\n").encode())
@@ -68,10 +70,16 @@ while True:
             cursor.execute('''INSERT INTO DHT22 (time,Temperatura, Humedad) VALUES (NOW(),%s, %s);''',(temp,hum))
             db.commit()
             print("Data saved to database ---> Received values\nWaiting for new data...")
+            prev_temp = float(temp)
+            prev_hum = float(hum)
         else:
             id = 1
-            temp = round(random.uniform(temp_min, temp_max), 2)  # Generar un valor aleatorio entre 20.0 y 30.0 para la temperatura con 2 decimales
-            hum = round(random.uniform(hum_min, hum_max), 2)  # Generar un valor aleatorio entre 30.0 y 60.0 para la humedad con 2 decimales
+            if prev_temp != 0 and prev_hum != 0:
+                temp = round(random.uniform(prev_temp - 0.5, prev_temp + 0.5), 2)
+                hum = round(random.uniform(prev_hum - 1.5, prev_hum + 1.5), 2)
+            else:
+                temp = round(random.uniform(temp_min, temp_max), 2)
+                hum = round(random.uniform(hum_min, hum_max), 2)
             # Ensure the new max/min values stay within the initial range
             temp_max = min(temp + 0.5, 25.0)
             temp_min = max(temp - 0.5, 17.0)

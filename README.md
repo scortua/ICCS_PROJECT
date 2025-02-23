@@ -177,16 +177,100 @@ LoRa es una tecnología de modulación inalámbrica que permite la comunicación
 - Escalabilidad: Soporta miles de dispositivos en una misma red.
 - Modos de operación: Clase A (bajo consumo), Clase B (latencia controlada) y Clase C (sin latencia).
 
+Por experiencia de uso, las LoRas deben tener un tiempo en que puedan resonar de forma moderada y poder llegar al lugar de recepción, si es demasiado rápido jamás llegará al destino la señal.
+
+En los códigos [Base.py](/ICCS_PROJECT/LoRa%20RYLR998/MicroPython/Base.py) y [send.ino](/ICCS_PROJECT/LoRa%20RYLR998/C_C++/send/send.ino) que son los códigos en uso se definen los tiempos.
+
 ## Función Sensores
 
 <details>
 <summary>Temperatura y Humedad</summary>
 
+Temperaturas Promedio, Máxima y Mínima en un Invernadero
+#### 1. Temperatura Promedio
+Rango general: 18°C a 24°C.
+Cultivos comunes:
+- Hortalizas (tomate, pimiento, pepino): 20°C a 24°C.
+- Frutas (fresas, melones): 18°C a 22°C.
+- Plantas ornamentales: 18°C a 21°C.
+#### 2. Temperatura Máxima
+Rango general: 25°C a 30°C.
+Consideraciones:
+Temperaturas superiores a 30°C pueden causar estrés térmico en las plantas, reducir la fotosíntesis y afectar la polinización.
+Es importante contar con sistemas de ventilación, sombreado o enfriamiento para evitar que la temperatura supere este umbral.
+#### 3. Temperatura Mínima
+Rango general: 12°C a 15°C.
+Consideraciones:
+Temperaturas inferiores a 10°C pueden ralentizar el crecimiento de las plantas y aumentar el riesgo de enfermedades.
+En climas fríos, se utilizan sistemas de calefacción para mantener la temperatura dentro del rango óptimo.
+#### 4. Recomendaciones para el Control de Temperatura
+Monitoreo Constante:
+Usa sensores de temperatura conectados a un sistema de monitoreo en tiempo real.
+Ejemplo: Sensores DHT22 o DS18B20 conectados a un Arduino o Raspberry Pi.
+Automatización:
+Implementa sistemas automáticos para controlar la ventilación, calefacción y enfriamiento.
+Ejemplo: Usa actuadores para abrir/cerrar ventanas o encender/apagar calefactores.
+Rangos Específicos por Cultivo:
+Ajusta los rangos de temperatura según las necesidades del cultivo y su etapa de crecimiento (germinación, crecimiento, floración, fructificación).
+Alertas:
+Configura alertas para notificar cuando la temperatura supere los rangos deseados.
+
+#### 1. Humedad Promedio
+Rango general: 50% a 70%.
+Cultivos comunes:
+- Hortalizas (tomate, pimiento, pepino): 60% - 70%.
+- Frutas (fresas, melones): 50% - 60%.
+- Plantas ornamentales: 50% - 70%.
+#### 2. Humedad Máxima
+Rango general: 70% a 80%.
+Humedades superiores a 80% aumentan el riesgo de enfermedades fúngicas (como mildiu u oídio) y reducen la transpiración de las plantas.
+Es importante contar con sistemas de ventilación o deshumidificación para evitar humedades excesivas.
+#### 3. Humedad Mínima
+Rango general: 40% a 50%.
+Humedades inferiores a 40% pueden causar estrés hídrico en las plantas, reducir la fotosíntesis y aumentar la transpiración.
 </details>
 
 <details>
 <summary>Ventilación</summary>
 
+#### 1. Tasa de Renovación de Aire (Promedio)
+Rango general: 20 a 30 renovaciones de aire por hora.
+Descripción:
+Esto significa que el volumen total de aire dentro del invernadero debe ser reemplazado entre 20 y 30 veces cada hora.
+Este valor es un promedio y puede variar según el tamaño del invernadero, el tipo de cultivo y las condiciones climáticas externas.
+#### 2. Velocidad del Aire (Mínimo y Máximo)
+Velocidad mínima: 0.1 a 0.3 m/s.
+Una velocidad demasiado baja puede generar zonas de aire estancado, lo que aumenta el riesgo de enfermedades y desuniformidad en el crecimiento de las plantas.
+Velocidad máxima: 0.5 a 1.0 m/s.
+Una velocidad demasiado alta puede causar estrés mecánico en las plantas y aumentar la transpiración, lo que lleva a un mayor consumo de agua.
+#### 3. Apertura de Ventanas (Mínimo y Máximo)
+Apertura mínima: 10% a 20% del área total del techo o laterales.
+Esto permite una ventilación básica para evitar el sobrecalentamiento y la acumulación de humedad.
+Apertura máxima: 50% a 70% del área total del techo o laterales.
+En días calurosos o con alta radiación solar, se recomienda abrir las ventanas al máximo para permitir una ventilación adecuada.
+Factores que Influyen en la Ventilación
+Tamaño del Invernadero:
+Invernaderos más grandes requieren sistemas de ventilación más potentes o un mayor número de ventanas.
+Tipo de Cultivo:
+Algunos cultivos son más sensibles a las corrientes de aire (por ejemplo, las hortalizas de hoja), mientras que otros toleran velocidades más altas (por ejemplo, los tomates).
+Clima Externo:
+En climas cálidos y húmedos, se necesita una mayor ventilación para reducir la temperatura y la humedad.
+En climas fríos, la ventilación debe ser controlada para evitar pérdidas de calor.
+Sistemas de Ventilación:
+Ventilación natural: Utiliza ventanas laterales y cenitales que se abren y cierran automáticamente.
+Ventilación forzada: Usa ventiladores eléctricos para mover el aire.
+#### 4. Recomendaciones para una Ventilación Eficiente
+Ventilación Natural:
+Instala ventanas laterales y cenitales que permitan la entrada y salida de aire.
+Asegúrate de que las ventanas estén distribuidas uniformemente para evitar zonas de aire estancado.
+Ventilación Forzada:
+Usa ventiladores para mover el aire cuando la ventilación natural no sea suficiente.
+Coloca los ventiladores estratégicamente para crear un flujo de aire uniforme.
+Control Automático:
+Usa sensores de temperatura y humedad para automatizar la apertura y cierre de ventanas o el encendido de ventiladores.
+Ejemplo: Si la temperatura supera los 28°C, abre las ventanas al 50%.
+Sombreado:
+Combina la ventilación con sistemas de sombreado (mallas o pinturas reflectantes) para reducir la carga térmica.
 </details>
 
 <details>
@@ -266,6 +350,19 @@ Para verificar lo que ha pasado en la base de datos se va a SQL
 ```SQL
 SELECT * FROM DHT22;
 ```
+
+Ahora, para poder hacer control sin necesidad de verificar la base en mysql, se puede usar una erramienta que nos permite conectar la dirección ip para abrirla en el navegador con el mismo router.
+[Nginx](https://nginx.org/en/)
+
+```bash
+sudo apt install nginx
+```
+Con esto hecho, solo se debe ingresar al terminal
+
+```bash
+ifconfig
+```
+Y se mostraran las configuraciones de ip de internet y bluetooth de la raspberry, ahí solo nos interesa ip4 no ip6, con este ip4 se ingresa tal cual el número al buscador y se visualiza un html que modificaremos.
 
 </details>
 
