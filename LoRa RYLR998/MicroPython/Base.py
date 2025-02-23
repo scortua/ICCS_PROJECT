@@ -23,48 +23,47 @@ def send_ms(ms):
     print(rec.decode('utf-8'))
     time.sleep(0.1)
 
-print("\nConfigurando parametro antena LoRa\n")
-time.sleep(0.5)
-send_ms("AT") #verificar estado de comandos
-time.sleep(0.1)
-send_ms("AT+ADDRESS=2") #colocar direccion lora 0 - 65535
-time.sleep(0.1)
-send_ms("AT+NETWORKID=5") #colocando direccion de red
-time.sleep(0.1)
-send_ms("AT+PARAMETER=9,7,1,12") #RF parameters
-time.sleep(0.1)
-send_ms("AT+MODE?") #operation mode
-time.sleep(0.1)
-send_ms("AT+CPIN?") #contraseña
-time.sleep(0.1)
+def init_lora():
+    print("\nConfigurando parametro antena LoRa\n")
+    time.sleep(0.5)
+    send_ms("AT") #verificar estado de comandos
+    time.sleep(0.1)
+    send_ms("AT+ADDRESS=2") #colocar direccion lora 0 - 65535
+    time.sleep(0.1)
+    send_ms("AT+NETWORKID=5") #colocando direccion de red
+    time.sleep(0.1)
+    send_ms("AT+PARAMETER=9,7,1,12") #RF parameters
+    time.sleep(0.1)
+    send_ms("AT+MODE?") #operation mode
+    time.sleep(0.1)
+    send_ms("AT+CPIN?") #contraseña
+    time.sleep(0.1)
 
+
+init_lora()
 while True:
     rxData = bytes()
-    while uart0.in_waiting>0:
-        rxData += uart0.read(1)
-    msg = rxData.decode('utf-8')
-    print('\n' + msg)
-    new_msg = msg.replace('+RCV=', '')
-    dats = new_msg.split(",")
+    while uart0.in_waiting > 0:
+        rxData += uart0.read(uart0.in_waiting)
+    if rxData:
+        msg = rxData.decode('utf-8')
+        print('\n' + msg)
+        new_msg = msg.replace('+RCV=', '')
+        data = new_msg.split(",")
 
-    if len(dats) == VarInMs:
-        id = dats[0]
-        dat_len = dats[1]
-        temp = dats[2]
-        hum = dats[3]
-        rssi = dats[4]
-        snr = dats[5]
-        print(f"ID: {id}, Data Length: {dat_len}, Temp: {temp}, Hum: {hum}, RSSI: {rssi}, SNR: {snr}")
-        cursor.execute('''INSERT INTO DHT22 (time,Temperatura, Humedad) VALUES (NOW(),%s, %s);''',(temp,hum))
-        db.commit()
-        print("Data saved to database")
+        if len(data) == VarInMs:
+            id = data[0]
+            data_len = data[1]
+            temp = data[2]
+            hum = data[3]
+            rssi = data[4]
+            snr = data[5]
+            print(f"ID: {id}, Data Length: {data_len}, Temp: {temp}, Hum: {hum}, RSSI: {rssi}, SNR: {snr}")
+            cursor.execute('''INSERT INTO DHT22 (time,Temperatura, Humedad) VALUES (NOW(),%s, %s);''',(temp,hum))
+            db.commit()
+            print("Data saved to database")
+        else:
+            print(f"Error: {data} \t ({len(data)}) de ({VarInMs})")
+            print("Data did not saved to database")
 
-    else:
-        print(f"Error: {dats} \t ({len(dats)}) de ({VarInMs})")
-        cursor.execute('''INSERT INTO DHT22 (time,Temperatura, Humedad) VALUES (NOW(),%s, %s);''',(0.0,0.0))
-        db.commit()
-        print("Data saved to database")
-
-    time.sleep(1)
-
-
+    time.sleep(5)

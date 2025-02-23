@@ -68,9 +68,9 @@ void loop() {
     Serial.println("Sending data: " + data);
     send_ms("AT+SEND=2," + datalen + "," + data); // Enviar datos
     digitalWrite(LED_PIN, HIGH);
-    delay(6000);
+    delay(12000);
     digitalWrite(LED_PIN, LOW);
-    delay(3000);
+    delay(8000);
 
     // Encender NeoPixel con color azul estilo ultravioleta
     pixels.setPixelColor(0, pixels.Color(0, 0, 255)); // Azul
