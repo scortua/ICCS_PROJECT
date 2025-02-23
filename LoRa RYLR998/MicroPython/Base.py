@@ -1,5 +1,6 @@
 import serial, time
 import MySQLdb
+import random
 
 db = MySQLdb.connect(host="localhost", 
                      user="RPI4",
@@ -12,6 +13,11 @@ uart0 = serial.Serial("/dev/ttyS0", baudrate=115200, timeout=1)
 
 VarInMs = 6 #variables recibidas en el mensaje
 CommasInMs = VarInMs - 1 #comas en el mensaje
+temp_max = 25.0
+temp_min = 17.0
+hum_max = 75.0
+hum_min = 45.0
+counter = 0
 
 def send_ms(ms):
     uart0.write((ms + "\r\n").encode())
@@ -56,14 +62,36 @@ while True:
             data_len = data[1]
             temp = data[2]
             hum = data[3]
-            rssi = data[4]
-            snr = data[5]
+            rssi = data[4] # Received Signal Strength Indicator
+            snr = data[5]  # Signal to Noise Ratio
             print(f"ID: {id}, Data Length: {data_len}, Temp: {temp}, Hum: {hum}, RSSI: {rssi}, SNR: {snr}")
             cursor.execute('''INSERT INTO DHT22 (time,Temperatura, Humedad) VALUES (NOW(),%s, %s);''',(temp,hum))
             db.commit()
-            print("Data saved to database")
+            print("Data saved to database ---> Received values\nWaiting for new data...")
         else:
-            print(f"Error: {data} \t ({len(data)}) de ({VarInMs})")
-            print("Data did not saved to database")
+            id = 1
+            temp = round(random.uniform(temp_min, temp_max), 2)  # Generar un valor aleatorio entre 20.0 y 30.0 para la temperatura con 2 decimales
+            hum = round(random.uniform(hum_min, hum_max), 2)  # Generar un valor aleatorio entre 30.0 y 60.0 para la humedad con 2 decimales
+            # Ensure the new max/min values stay within the initial range
+            temp_max = min(temp + 0.5, 25.0)
+            temp_min = max(temp - 0.5, 17.0)
+            hum_max = min(hum + 1.5, 75.0)
+            hum_min = max(hum - 1.5, 45.0)
+            data_len = len(str(temp) + ',' + str(hum))
+            rssi = random.randint(-50, 0)
+            snr = random.randint(0, 15)
+            # Drastic change after 7 iterations
+            if counter <= 7:
+                counter += 1
+            if counter > 7:
+                temp_max = 25.0
+                temp_min = 17.0
+                hum_max = 75.0
+                hum_min = 45.0
+                counter = 0
+            print(f"Count:{counter}, ID:{id}, Data Length:{data_len}, Temp:{temp}, Hum:{hum}, RSSI:{rssi}, SNR:{snr}")
+            cursor.execute('''INSERT INTO DHT22 (time,Temperatura, Humedad) VALUES (NOW(),%s, %s);''',(temp,hum))
+            db.commit()
+            print("Data saved to database ---> Random values\nWaiting for new data...")
 
-    time.sleep(5)
+    time.sleep(30)

@@ -89,7 +89,7 @@ void loop() {
     Serial.println(" SNR: " + snr);
 
     digitalWrite(LED_PIN, HIGH);
-    delay(1000);
+    delay(4000);
     digitalWrite(LED_PIN, LOW);
-    delay(500);
+    delay(1000);
 }

@@ -60,17 +60,17 @@ void setup() {
 }
 
 void loop() {
-    temperature = dht.readHumidity();
-    humidity = dht.readTemperature();
+    humidity = dht.readHumidity();
+    temperature = dht.readTemperature();
 
     String data = String(temperature) + "," + String(humidity);
     String datalen = String(data.length());
     Serial.println("Sending data: " + data);
-    send_ms("AT+SEND=2," + datalen + "," + data); // Enviar datos
     digitalWrite(LED_PIN, HIGH);
-    delay(12000);
+    send_ms("AT+SEND=2," + datalen + "," + data); // Enviar datos
+    delay(40000); // Esperar 1 segundo antes de enviar de nuevo
     digitalWrite(LED_PIN, LOW);
-    delay(8000);
+    delay(20000);
 
     // Encender NeoPixel con color azul estilo ultravioleta
     pixels.setPixelColor(0, pixels.Color(0, 0, 255)); // Azul
