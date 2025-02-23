@@ -53,53 +53,52 @@ while True:
     rxData = bytes()
     while uart0.in_waiting > 0:
         rxData += uart0.read(uart0.in_waiting)
-    if rxData:
-        msg = rxData.decode('utf-8')
-        print('\n' + msg)
-        new_msg = msg.replace('+RCV=', '')
-        data = new_msg.split(",")
+    msg = rxData.decode('utf-8')
+    print('\n' + msg)
+    new_msg = msg.replace('+RCV=', '')
+    data = new_msg.split(",")
 
-        if len(data) == VarInMs:
-            id = data[0]
-            data_len = data[1]
-            temp = data[2]
-            hum = data[3]
-            rssi = data[4] # Received Signal Strength Indicator
-            snr = data[5]  # Signal to Noise Ratio
-            print(f"ID: {id}, Data Length: {data_len}, Temp: {temp}, Hum: {hum}, RSSI: {rssi}, SNR: {snr}")
-            cursor.execute('''INSERT INTO DHT22 (time,Temperatura, Humedad) VALUES (NOW(),%s, %s);''',(temp,hum))
-            db.commit()
-            print("Data saved to database ---> Received values\nWaiting for new data...")
-            prev_temp = float(temp)
-            prev_hum = float(hum)
+    if len(data) == VarInMs:
+        id = data[0]
+        data_len = data[1]
+        temp = data[2]
+        hum = data[3]
+        rssi = data[4] # Received Signal Strength Indicator
+        snr = data[5]  # Signal to Noise Ratio
+        print(f"ID: {id}, Data Length: {data_len}, Temp: {temp}, Hum: {hum}, RSSI: {rssi}, SNR: {snr}")
+        cursor.execute('''INSERT INTO DHT22 (time,Temperatura, Humedad) VALUES (NOW(),%s, %s);''',(temp,hum))
+        db.commit()
+        print("Data saved to database ---> Received values\nWaiting for new data...")
+        prev_temp = float(temp)
+        prev_hum = float(hum)
+    else:
+        id = 1
+        if prev_temp != 0 and prev_hum != 0:
+            temp = round(random.uniform(prev_temp - 0.5, prev_temp + 0.5), 2)
+            hum = round(random.uniform(prev_hum - 1.5, prev_hum + 1.5), 2)
         else:
-            id = 1
-            if prev_temp != 0 and prev_hum != 0:
-                temp = round(random.uniform(prev_temp - 0.5, prev_temp + 0.5), 2)
-                hum = round(random.uniform(prev_hum - 1.5, prev_hum + 1.5), 2)
-            else:
-                temp = round(random.uniform(temp_min, temp_max), 2)
-                hum = round(random.uniform(hum_min, hum_max), 2)
-            # Ensure the new max/min values stay within the initial range
-            temp_max = min(temp + 0.5, 25.0)
-            temp_min = max(temp - 0.5, 17.0)
-            hum_max = min(hum + 1.5, 75.0)
-            hum_min = max(hum - 1.5, 45.0)
-            data_len = len(str(temp) + ',' + str(hum))
-            rssi = random.randint(-50, 0)
-            snr = random.randint(0, 15)
-            # Drastic change after 7 iterations
-            if counter <= 7:
-                counter += 1
-            if counter > 7:
-                temp_max = 25.0
-                temp_min = 17.0
-                hum_max = 75.0
-                hum_min = 45.0
-                counter = 0
-            print(f"Count:{counter}, ID:{id}, Data Length:{data_len}, Temp:{temp}, Hum:{hum}, RSSI:{rssi}, SNR:{snr}")
-            cursor.execute('''INSERT INTO DHT22 (time,Temperatura, Humedad) VALUES (NOW(),%s, %s);''',(temp,hum))
-            db.commit()
-            print("Data saved to database ---> Random values\nWaiting for new data...")
+            temp = round(random.uniform(temp_min, temp_max), 2)
+            hum = round(random.uniform(hum_min, hum_max), 2)
+        # Ensure the new max/min values stay within the initial range
+        temp_max = min(temp + 0.5, 25.0)
+        temp_min = max(temp - 0.5, 17.0)
+        hum_max = min(hum + 1.5, 75.0)
+        hum_min = max(hum - 1.5, 45.0)
+        data_len = len(str(temp) + ',' + str(hum))
+        rssi = random.randint(-50, 0)
+        snr = random.randint(0, 15)
+        # Drastic change after 7 iterations
+        if counter <= 7:
+            counter += 1
+        if counter > 7:
+            temp_max = 25.0
+            temp_min = 17.0
+            hum_max = 75.0
+            hum_min = 45.0
+            counter = 0
+        print(f"Count:{counter}, ID:{id}, Data Length:{data_len}, Temp:{temp}, Hum:{hum}, RSSI:{rssi}, SNR:{snr}")
+        cursor.execute('''INSERT INTO DHT22 (time,Temperatura, Humedad) VALUES (NOW(),%s, %s);''',(temp,hum))
+        db.commit()
+        print("Data saved to database ---> Random values\nWaiting for new data...")
 
     time.sleep(30)

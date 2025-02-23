@@ -20,6 +20,8 @@ uint8_t  brightness = 180;
 
 // Variables para almacenar temperatura y humedad
 float temperature = 0.0, humidity = 0.0;
+int ms = 5;
+int counter = 0;
 
 void send_ms(String ms) {
     myserial.println(ms); // mandar mensaje
@@ -72,16 +74,17 @@ void loop() {
     String datalen = String(data.length());
     Serial.println("Sending data: " + data);
     send_ms("AT+SEND=2," + datalen + "," + data); // Enviar datos
-    int ms = 5;
+    counter = 0;
     // Encender LED con efecto de respiración
     while (ms <= 46*(0.005*255)){
         for (int i = 0; i <= 255; i++) {
             analogWrite(LED_PIN, i);
-            delay(ms + 5);
+            delay(ms);
         }
         for (int i = 255; i >= 0; i--) {
             analogWrite(LED_PIN, i);
-            delay(ms + 5);
+            delay(ms);
         }
+        ms += 10; // Increment ms to avoid infinite loop
     }
 }
