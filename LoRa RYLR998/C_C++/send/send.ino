@@ -20,8 +20,6 @@ uint8_t  brightness = 180;
 
 // Variables para almacenar temperatura y humedad
 float temperature = 0.0, humidity = 0.0;
-int ms = 5;
-int counter = 0;
 
 void send_ms(String ms) {
     myserial.println(ms); // mandar mensaje
@@ -49,6 +47,18 @@ void init_lora() {
     delay(1000);
 }
 
+
+void pwm(int ms, int on, int off) {
+    // Configurar PWM en el pin LED_PIN a 1000 Hz
+    for (int i = 0; i < ms; i++) {
+        digitalWrite(LED_PIN, HIGH);
+        delay(on);
+        digitalWrite(LED_PIN, LOW);
+        delay(off);
+    }
+}
+
+
 void setup() {
     Serial.begin(115200);
     myserial.begin(115200);
@@ -60,6 +70,8 @@ void setup() {
     // Inicializar NeoPixel
     pixels.begin();
     pixels.show(); // Inicializar todos los píxeles a 'apagado'
+    // Configurar PWM en el pin LED_PIN a 1000 Hz
+    pwm(5,100,100); // Encender LED con brillo máximo
     // Encender NeoPixel con color azul estilo ultravioleta
     pixels.setBrightness(brightness); // Brillo de 50% (0-255)
     pixels.setPixelColor(0, pixels.Color(0, 0, 255)); // Azul
@@ -74,17 +86,6 @@ void loop() {
     String datalen = String(data.length());
     Serial.println("Sending data: " + data);
     send_ms("AT+SEND=2," + datalen + "," + data); // Enviar datos
-    counter = 0;
-    // Encender LED con efecto de respiración
-    while (ms <= 46*(0.005*255)){
-        for (int i = 0; i <= 255; i++) {
-            analogWrite(LED_PIN, i);
-            delay(ms);
-        }
-        for (int i = 255; i >= 0; i--) {
-            analogWrite(LED_PIN, i);
-            delay(ms);
-        }
-        ms += 10; // Increment ms to avoid infinite loop
-    }
+    pwm(28,100,1900); // Encender LED con brillo medio
+    delay(4000);
 }
