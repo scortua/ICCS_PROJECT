@@ -13,7 +13,7 @@ Proyecto de internet de las cosas con convergencia en la ciberseguridad. Propós
 * [LoRa WAN](#LoRa)
 * [Función Sensores](#Función-Sensores)
 * [Conexiones](#conexiones)
-* [Base de datos](#base-datos-local)
+* [Base de datos](#base-datos)
 * [Licencia](#licencia)
 
 
@@ -306,44 +306,53 @@ sudo apt-get install python-mysqldb
 <summary>Enlace a servidor local</summary>
 
 Ingresamos al host de mysql.
+
 ```bash
 sudo mysql -u root
 ```
 Creamos la base de datos del ***Invernadero***
+
 ```SQL
 CREATE DATABASE Invernadero;
 ```
 Nos adentramos en la base de datos
+
 ```SQL
 USE Invernadero;
 ```
 Creamos la tabla DHT22
+
 ```SQL
-CREATE TABLE DHT22 (time TIMESTAMP, Temperatura FLOAT, Humedad FLOAT);
+CREATE TABLE DHT22 (ID INT AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP, Temperatura FLOAT, Humedad FLOAT);
 ```
-Ahora es mostrar la tabla
+Ahora, se debe mostrar la tabla
+
 ```SQL
 DESCRIBE DHT22;
 ```
 Ahora, se crea el usuario host
+
 ```SQL
 CREATE USER 'RPI4'@'localhost' IDENTIFIED BY 'raspberry4';
 ```
 Se otorgan permisos
+
 ```SQL
 GRANT ALL PRIVILEGES ON *.* TO 'RPI4'@'localhost';
 ```
 Para ver las bases de datos se usa:
+
 ```SQL
 SHOW DATABASES;
 SHOW TABLES;
 ```
-Y para conectar la base de datos al sistema con python
+Y para conectar la base de datos al sistema con python.
+
 ```Python
-name_db = MYSQLdb.connect(host="localhost",user="RPI4",passwd="1234567890",db="Invernadero") #conexión con MYSQL/MariaDB 
+name_db = MYSQLdb.connect(host="localhost",user="RPI4",passwd="raspberry4",db="Invernadero") #conexión con MYSQL/MariaDB 
 cursor = db.cursor() # crear cursor
 
-cursor.execute(f"INSERT INTO Data (Temperatura, Humedad) VALUES ({temp}, {hum})") # ingresar datos
+cursor.execute('''INSERT INTO DHT22 (time,Temperatura, Humedad) VALUES (NOW(),%s, %s);''',(temp,hum)) # ingresar datos
 db.commit() # 
 ```
 Para verificar lo que ha pasado en la base de datos se va a SQL
@@ -363,6 +372,21 @@ Con esto hecho, solo se debe ingresar al terminal
 ifconfig
 ```
 Y se mostraran las configuraciones de ip de internet y bluetooth de la raspberry, ahí solo nos interesa ip4 no ip6, con este ip4 se ingresa tal cual el número al buscador y se visualiza un html que modificaremos.
+Con el siguiente comando nos dirigimos al lugar donde estan los datos de la página local.
+
+```bash
+RPI4@LocalHost:~ $ cd /var/www/html
+RPI4@LocalHost:/var/www/html $ ls
+    index.nginx-debian.html
+RPI4@LocalHost:/var/www/html $ cat index.nginx-debian.html 
+```
+Ahora, de forma opcional se puede cambiar el propietario del directorio al host.
+
+```bash
+sudo chown RPI4:RPI4 .
+```
+Con ls se ve dos archivos ahora y se puede eliminar el archivo index anterior con rm y se genera codigo como [local web](/ICCS_PROJECT/Code/WEB/LOCAL/iccs.html).
+
 
 </details>
 
