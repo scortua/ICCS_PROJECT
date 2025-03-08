@@ -137,28 +137,61 @@ while True:
 [![DHT22](Images/DHT22-Sensor-Pinout.png)](https://www.instructables.com/Raspberry-Pi-Pico-DHT22-AM2302-Temperature-Sensor-/)
 
 El DHT22 es un sensor digital que mide la temperatura y la humedad relativa del ambiente. Es muy utilizado en proyectos de electrónica, IoT y automatización del hogar debido a su precisión y facilidad de uso.
-
 Características Principales
 Rango de medición de temperatura: -40°C a 80°C (±0.5°C de precisión).
-
 Rango de medición de humedad: 0% a 100% (±2% de precisión).
-
 Salida digital: Proporciona los datos en formato digital, lo que facilita su lectura con microcontroladores como Arduino, Raspberry Pi, ESP8266, etc.
-
 Frecuencia de muestreo: Realiza una medición cada 2 segundos (no es recomendable leerlo más rápido).
-
 Alimentación: Funciona con un voltaje de 3.3V a 5V.
-
 Conexión: Tiene 3 o 4 pines (dependiendo del modelo):
-
 VCC: Alimentación (3.3V o 5V).
-
 GND: Conexión a tierra.
-
 Data: Pin de comunicación digital (envía los datos al microcontrolador).
-
 NC (opcional): Pin no conectado (no se usa).
+</details>
 
+<details>
+<summary> Sensor Humedad de suelo</summary>
+
+## Sensor de Humedad de Suelo
+
+[]()
+
+El sensor de humedad de suelo es un dispositivo utilizado para medir el contenido de agua en el suelo. Es ampliamente utilizado en proyectos de jardinería, agricultura y sistemas de riego automatizados para asegurar que las plantas reciban la cantidad adecuada de agua.
+
+- **Rango de medición**: Proporciona una lectura analógica que varía según la humedad del suelo.
+- **Voltaje de operación**: Generalmente funciona con 3.3V a 5V.
+- **Salida**: Señal analógica que puede ser leída por un microcontrolador.
+- **Conexión**: Tiene 3 pines:
+    - **VCC**: Alimentación (3.3V o 5V).
+    - **GND**: Conexión a tierra.
+    - **AOUT**: Salida analógica que proporciona la lectura de humedad.
+
+
+</details>
+
+<details>
+<summary> Ventilador </summary>
+
+## Ventilador
+
+El uso de ventiladores en un sistema de invernadero es crucial para mantener un ambiente controlado y saludable para las plantas. Los ventiladores pueden ser utilizados tanto para la entrada como para la salida de aire, asegurando una circulación adecuada y evitando problemas como el sobrecalentamiento y la acumulación de humedad.
+
+### Ventilador de Entrada
+
+Los ventiladores de entrada se utilizan para introducir aire fresco del exterior al interior del invernadero. Esto ayuda a mantener una temperatura adecuada y a proporcionar dióxido de carbono (CO2) necesario para la fotosíntesis.
+
+- **Ubicación**: Generalmente se colocan en las paredes laterales del invernadero.
+- **Función**: Introducir aire fresco y mantener niveles adecuados de CO2.
+- **Control**: Pueden ser controlados automáticamente mediante sensores de temperatura y CO2.
+
+### Ventilador de Salida
+
+Los ventiladores de salida se utilizan para extraer el aire caliente y húmedo del interior del invernadero, ayudando a mantener una temperatura y humedad óptimas.
+
+- **Ubicación**: Generalmente se colocan en el techo o en las paredes opuestas a los ventiladores de entrada.
+- **Función**: Extraer aire caliente y húmedo para evitar el sobrecalentamiento y la acumulación de humedad.
+- **Control**: Pueden ser controlados automáticamente mediante sensores de temperatura y humedad.
 </details>
 
 ## LoRa
@@ -187,22 +220,26 @@ En los códigos [Base.py](/ICCS_PROJECT/LoRa%20RYLR998/MicroPython/Base.py) y [s
 <summary>Temperatura y Humedad</summary>
 
 Temperaturas Promedio, Máxima y Mínima en un Invernadero
+
 #### 1. Temperatura Promedio
 Rango general: 18°C a 24°C.
 Cultivos comunes:
 - Hortalizas (tomate, pimiento, pepino): 20°C a 24°C.
 - Frutas (fresas, melones): 18°C a 22°C.
 - Plantas ornamentales: 18°C a 21°C.
+
 #### 2. Temperatura Máxima
 Rango general: 25°C a 30°C.
 Consideraciones:
 Temperaturas superiores a 30°C pueden causar estrés térmico en las plantas, reducir la fotosíntesis y afectar la polinización.
 Es importante contar con sistemas de ventilación, sombreado o enfriamiento para evitar que la temperatura supere este umbral.
+
 #### 3. Temperatura Mínima
 Rango general: 12°C a 15°C.
 Consideraciones:
 Temperaturas inferiores a 10°C pueden ralentizar el crecimiento de las plantas y aumentar el riesgo de enfermedades.
 En climas fríos, se utilizan sistemas de calefacción para mantener la temperatura dentro del rango óptimo.
+
 #### 4. Recomendaciones para el Control de Temperatura
 Monitoreo Constante:
 Usa sensores de temperatura conectados a un sistema de monitoreo en tiempo real.
@@ -221,10 +258,12 @@ Cultivos comunes:
 - Hortalizas (tomate, pimiento, pepino): 60% - 70%.
 - Frutas (fresas, melones): 50% - 60%.
 - Plantas ornamentales: 50% - 70%.
+
 #### 2. Humedad Máxima
 Rango general: 70% a 80%.
 Humedades superiores a 80% aumentan el riesgo de enfermedades fúngicas (como mildiu u oídio) y reducen la transpiración de las plantas.
 Es importante contar con sistemas de ventilación o deshumidificación para evitar humedades excesivas.
+
 #### 3. Humedad Mínima
 Rango general: 40% a 50%.
 Humedades inferiores a 40% pueden causar estrés hídrico en las plantas, reducir la fotosíntesis y aumentar la transpiración.
@@ -238,11 +277,13 @@ Rango general: 20 a 30 renovaciones de aire por hora.
 Descripción:
 Esto significa que el volumen total de aire dentro del invernadero debe ser reemplazado entre 20 y 30 veces cada hora.
 Este valor es un promedio y puede variar según el tamaño del invernadero, el tipo de cultivo y las condiciones climáticas externas.
+
 #### 2. Velocidad del Aire (Mínimo y Máximo)
 Velocidad mínima: 0.1 a 0.3 m/s.
 Una velocidad demasiado baja puede generar zonas de aire estancado, lo que aumenta el riesgo de enfermedades y desuniformidad en el crecimiento de las plantas.
 Velocidad máxima: 0.5 a 1.0 m/s.
 Una velocidad demasiado alta puede causar estrés mecánico en las plantas y aumentar la transpiración, lo que lleva a un mayor consumo de agua.
+
 #### 3. Apertura de Ventanas (Mínimo y Máximo)
 Apertura mínima: 10% a 20% del área total del techo o laterales.
 Esto permite una ventilación básica para evitar el sobrecalentamiento y la acumulación de humedad.
@@ -259,6 +300,7 @@ En climas fríos, la ventilación debe ser controlada para evitar pérdidas de c
 Sistemas de Ventilación:
 Ventilación natural: Utiliza ventanas laterales y cenitales que se abren y cierran automáticamente.
 Ventilación forzada: Usa ventiladores eléctricos para mover el aire.
+
 #### 4. Recomendaciones para una Ventilación Eficiente
 Ventilación Natural:
 Instala ventanas laterales y cenitales que permitan la entrada y salida de aire.
@@ -361,11 +403,14 @@ SELECT * FROM DHT22;
 ```
 
 Ahora, para poder hacer control sin necesidad de verificar la base en mysql, se puede usar una erramienta que nos permite conectar la dirección ip para abrirla en el navegador con el mismo router.
-[Nginx](https://nginx.org/en/)
+[Nginx](https://nginx.org/en/) o [Apache2](https://httpd.apache.org/docs/trunk/es/install.html)
 
 ```bash
 sudo apt install nginx
+
+sudo apt install apache2
 ```
+
 Con esto hecho, solo se debe ingresar al terminal
 
 ```bash
@@ -386,6 +431,12 @@ Ahora, de forma opcional se puede cambiar el propietario del directorio al host.
 sudo chown RPI4:RPI4 .
 ```
 Con ls se ve dos archivos ahora y se puede eliminar el archivo index anterior con rm y se genera codigo como [local web](/ICCS_PROJECT/Code/WEB/LOCAL/iccs.html).
+Para lograr el control de la base de datos se instala _php_ y _phpmyadmin_.
+
+```bash
+sudo apt install php-mysql
+sudo apt install phpmyadmin
+```
 
 
 </details>
