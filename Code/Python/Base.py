@@ -68,6 +68,10 @@ while True:
         print(f"ID: {id}, Data Length: {data_len}, Temp: {temp}, Hum: {hum}, RSSI: {rssi}, SNR: {snr}")
         cursor.execute('''INSERT INTO DHT22 (time,Temperatura, Humedad) VALUES (NOW(),%s, %s);''',(temp,hum))
         db.commit()
+        cursor.execute('''INSERT INTO MQ-135 (time,CO2, NH3, NO2) VALUES (NOW(),%s, %s, %s);''',(random.randint(0, 1000),random.randint(0, 1000),random.randint(0, 1000)))
+        db.commit()
+        #cursor.execute('''INSERT INTO DIRT () VALUES ();''',())
+        #db.commit()
         print("Data saved to database ---> Received values\nWaiting for new data...")
         prev_temp = float(temp)
         prev_hum = float(hum)
@@ -98,6 +102,8 @@ while True:
             counter = 0
         print(f"Count:{counter}, ID:{id}, Data Length:{data_len}, Temp:{temp}, Hum:{hum}, RSSI:{rssi}, SNR:{snr}")
         cursor.execute('''INSERT INTO DHT22 (time,Temperatura, Humedad) VALUES (NOW(),%s, %s);''',(temp,hum))
+        db.commit()
+        cursor.execute('''INSERT INTO MQ-135 (time,CO2, NH3, NO2) VALUES (NOW(),%s, %s, %s);''',(random.randint(0, 1000),random.randint(0, 1000),random.randint(0, 1000)))
         db.commit()
         print("Data saved to database ---> Random values\nWaiting for new data...")
 
