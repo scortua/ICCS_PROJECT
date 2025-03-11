@@ -1,142 +1,89 @@
-<?php
-$MyUsername = "RPI4";  // enter your username for mysql
-$MyPassword = "raspberry4";  // enter your password for mysql
-$MyHostname = "localhost";      // this is usually "localhost" unless your database resides on a different server
-$MyDatabase = "Invernadero"; // Enter your database name here
-
-// Create connection
-$conn = new mysqli($MyHostname, $MyUsername, $MyPassword, $MyDatabase);
-
-// Check connection
-if ($conn->connect_error) {
-    $status = "Connection failed: " . $conn->connect_error;
-    $dates = [];
-    $temperatures = [];
-    $humidities = [];
-} else {
-    $status = "Connected successfully";
-    $sql = "SELECT fecha, temperatura, humedad FROM DHT22 ORDER BY fecha DESC LIMIT 10";
-    $result = $conn->query($sql);
-
-    $dates = array();
-    $temperatures = array();
-    $humidities = array();
-
-    if ($result->num_rows > 0) {
-        while($row = $result->fetch_assoc()) {
-            $dates[] = $row['fecha'];
-            $temperatures[] = $row['temperatura'];
-            $humidities[] = $row['humedad'];
-        }
-    }
-
-    $conn->close();
-}
-?>
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Datos del Invernadero</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invernadero - Sistema de Monitoreo</title>
     <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .chart-container {
-            width: 80%;
-            margin: auto;
-        }
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { font-size: 2em; color: cyan; font-weight: bold; text-align: center; margin-bottom: 20px; }
+        .connection-status { font-size: 1.2em; font-weight: bold; text-align: center; margin-bottom: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+        table { width: 80%; border-collapse: collapse; margin-bottom: 30px; }
+        th { background-color: #4CAF50; color: white; text-align: left; padding: 12px; }
+        td { border: 1px solid #ddd; padding: 12px; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        .sensor-title { font-size: 1.5em; color: #333; margin: 20px 0 10px 0; }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h1>Datos del Invernadero</h1>
-    <p><?php echo $status; ?></p>
-    <div class="chart-container">
-        <canvas id="temperatureChart"></canvas>
-        <canvas id="humidityChart"></canvas>
-    </div>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const labels = <?php echo json_encode($dates); ?>;
-            const temperatures = <?php echo json_encode($temperatures); ?>;
-            const humidities = <?php echo json_encode($humidities); ?>;
+    <div class="header">Datos del Invernadero</div>
 
-            const temperatureCtx = document.getElementById('temperatureChart').getContext('2d');
-            const humidityCtx = document.getElementById('humidityChart').getContext('2d');
+    <?php
+    $MyUsername = "RPI4";
+    $MyPassword = "raspberry4";
+    $MyHostname = "localhost";
+    $MyDatabase = "Invernadero";
 
-            new Chart(temperatureCtx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Temperatura',
-                        data: temperatures,
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        fill: false
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: {
-                            display: true,
-                            title: {
-                                display: true,
-                                text: 'Fecha'
-                            }
-                        },
-                        y: {
-                            display: true,
-                            title: {
-                                display: true,
-                                text: 'Temperatura (°C)'
-                            }
-                        }
+    // Create connection
+    $conn = new mysqli($MyHostname, $MyUsername, $MyPassword, $MyDatabase);
+
+    // Check connection
+    if ($conn->connect_error) {
+        echo '<div class="connection-status error">Connection failed: ' . $conn->connect_error . '</div>';
+    } else {
+        echo '<div class="connection-status success">Connected successfully</div>';
+        
+        // Function to display sensor data in a table
+        function displaySensorData($conn, $tableName, $limit = 10) {
+            echo '<div class="sensor-title">Sensor: ' . htmlspecialchars($tableName) . '</div>';
+            
+            // Get column names for the table headers
+            $columnsResult = $conn->query("SHOW COLUMNS FROM $tableName");
+            if ($columnsResult) {
+                $columns = $columnsResult->fetch_all(MYSQLI_ASSOC);
+                
+                // Query to get the last 10 records
+                $query = "SELECT * FROM $tableName ORDER BY id DESC LIMIT $limit";
+                $result = $conn->query($query);
+                
+                if ($result && $result->num_rows > 0) {
+                    echo '<table>';
+                    
+                    // Table header
+                    echo '<tr>';
+                    foreach ($columns as $column) {
+                        echo '<th>' . htmlspecialchars($column['Field']) . '</th>';
                     }
-                }
-            });
-
-            new Chart(humidityCtx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Humedad',
-                        data: humidities,
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        fill: false
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: {
-                            display: true,
-                            title: {
-                                display: true,
-                                text: 'Fecha'
-                            }
-                        },
-                        y: {
-                            display: true,
-                            title: {
-                                display: true,
-                                text: 'Humedad (%)'
-                            }
+                    echo '</tr>';
+                    
+                    // Table data
+                    while ($row = $result->fetch_assoc()) {
+                        echo '<tr>';
+                        foreach ($columns as $column) {
+                            $fieldName = $column['Field'];
+                            echo '<td>' . htmlspecialchars($row[$fieldName]) . '</td>';
                         }
+                        echo '</tr>';
                     }
+                    
+                    echo '</table>';
+                } else {
+                    echo '<p>No hay datos disponibles para ' . htmlspecialchars($tableName) . '</p>';
                 }
-            });
-        });
-    </script>
+            }
+        }
+        
+        // Display DHT22 sensor data
+        displaySensorData($conn, "DHT22");
+        
+        // To add another sensor table, just add another call to the function:
+        // displaySensorData($conn, "OtherSensorName");
+        
+        // Close the connection
+        $conn->close();
+    }
+    ?>
 </body>
 </html>
