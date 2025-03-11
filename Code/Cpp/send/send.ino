@@ -47,7 +47,6 @@ void init_lora() {
     delay(1000);
 }
 
-
 void pwm(int ms, int on, int off) {
     // Configurar PWM en el pin LED_PIN a 1000 Hz
     for (int i = 0; i < ms; i++) {
@@ -57,7 +56,6 @@ void pwm(int ms, int on, int off) {
         delay(off);
     }
 }
-
 
 void setup() {
     Serial.begin(115200);
@@ -73,8 +71,7 @@ void setup() {
     // Configurar PWM en el pin LED_PIN a 1000 Hz
     pwm(5,100,100); // Encender LED con brillo máximo
     // Encender NeoPixel con color azul estilo ultravioleta
-    pixels.setBrightness(brightness); // Brillo de 50% (0-255)
-    pixels.setPixelColor(0, pixels.Color(0, 0, 255)); // Azul
+    pixels.setPixelColor(0, pixels.Color(0, 0, brightness));
     pixels.show();
 }
 

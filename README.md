@@ -25,9 +25,7 @@ Proyecto de internet de las cosas con convergencia en la ciberseguridad. Propós
 <summary>LoRa RYLR998</summary>
 
 ### Modulo lora
-
 [![LoRa](Images/rylr998.png)](https://www.amazon.com/-/es/M%C3%B3dulo-interfaz-RYLR998-certificaci%C3%B3n-antena/dp/B099RM1XMG)
-
 Modulo lora que funciona por _UART_ siendo muy versátil y útil para microcontroladores simples. La forma en la que funciona este modulo es por comandos que el mismo fabricante recomienda usar y se pueden ver en el [manual](Documents/LoRa_AT_Command_RYLR998_RYLR498_EN.pdf).
 
 Básicos comandos a usar:
@@ -46,9 +44,7 @@ Básicos comandos a usar:
 <summary> RP PICO </summary>
 
 ### Raspberry pi pico
-
 [![PI PICO](Images/pi_pico.png)](https://www.raspberrypi.com/documentation/microcontrollers/pico-series.html#pico-1-family)
-
 La **Raspberry Pi Pico** es una placa de desarrollo económica y versátil basada en el microcontrolador **RP2040**, diseñado por Raspberry Pi. Es ideal para proyectos de electrónica, IoT, robótica y más.
 
 - **Procesador Dual-Core ARM Cortex-M0+** a 133 MHz.
@@ -93,7 +89,6 @@ while True:
 ### Raspberry pi 4
 
 [![RPI4](Images/pi4.png)](https://www.raspberrypi.com/products/raspberry-pi-4-model-b/specifications/)
-
 La **Raspberry Pi 4** es una potente computadora de placa única (SBC) diseñada para una amplia gama de aplicaciones, desde proyectos educativos hasta servidores domésticos y sistemas embebidos. Es la versión más avanzada de la serie Raspberry Pi, con mejoras significativas en rendimiento y conectividad.
 
 - **Procesador Broadcom BCM2711** con CPU Quad-Core ARM Cortex-A72 a **1.5 GHz**.
@@ -129,13 +124,10 @@ while True:
 </details>
 
 <details>
-
 <summary>Temperatura y Humedad DHT22</summary>
 
-## DHT22
-
+### DHT22
 [![DHT22](Images/DHT22-Sensor-Pinout.png)](https://www.instructables.com/Raspberry-Pi-Pico-DHT22-AM2302-Temperature-Sensor-/)
-
 El DHT22 es un sensor digital que mide la temperatura y la humedad relativa del ambiente. Es muy utilizado en proyectos de electrónica, IoT y automatización del hogar debido a su precisión y facilidad de uso.
 Características Principales
 Rango de medición de temperatura: -40°C a 80°C (±0.5°C de precisión).
@@ -153,10 +145,8 @@ NC (opcional): Pin no conectado (no se usa).
 <details>
 <summary> Sensor Humedad de suelo</summary>
 
-## Sensor de Humedad de Suelo
-
+### Sensor de Humedad de Suelo
 []()
-
 El sensor de humedad de suelo es un dispositivo utilizado para medir el contenido de agua en el suelo. Es ampliamente utilizado en proyectos de jardinería, agricultura y sistemas de riego automatizados para asegurar que las plantas reciban la cantidad adecuada de agua.
 
 - **Rango de medición**: Proporciona una lectura analógica que varía según la humedad del suelo.
@@ -171,13 +161,31 @@ El sensor de humedad de suelo es un dispositivo utilizado para medir el contenid
 </details>
 
 <details>
+<summary> Sensor calidad de aire MQ-135</summary>
+
+### MQ-135
+[![sensor MQ135](/PROYECTO/ICCS_PROJECT/Images/MQ135-sensor.png)]()
+El sensor MQ-135 es un dispositivo utilizado para medir la calidad del aire. Es capaz de detectar una variedad de gases nocivos, incluyendo amoníaco, dióxido de carbono, alcohol, benceno, humo y otros gases peligrosos. Este sensor es comúnmente utilizado en aplicaciones de monitoreo ambiental y sistemas de purificación de aire.
+
+- Alta sensibilidad a gases nocivos
+- Respuesta rápida
+- Larga vida útil y bajo costo
+- Fácil de integrar en sistemas de monitoreo
+
+- Monitoreo de calidad del aire en interiores
+- Sistemas de purificación de aire
+- Detectores de humo y gases tóxicos
+- Sistemas de ventilación y aire acondicionado
+</details>
+
+<details>
 <summary> Ventilador </summary>
 
-## Ventilador
+### Ventilador
 
 El uso de ventiladores en un sistema de invernadero es crucial para mantener un ambiente controlado y saludable para las plantas. Los ventiladores pueden ser utilizados tanto para la entrada como para la salida de aire, asegurando una circulación adecuada y evitando problemas como el sobrecalentamiento y la acumulación de humedad.
 
-### Ventilador de Entrada
+#### Ventilador de Entrada
 
 Los ventiladores de entrada se utilizan para introducir aire fresco del exterior al interior del invernadero. Esto ayuda a mantener una temperatura adecuada y a proporcionar dióxido de carbono (CO2) necesario para la fotosíntesis.
 
@@ -185,13 +193,26 @@ Los ventiladores de entrada se utilizan para introducir aire fresco del exterior
 - **Función**: Introducir aire fresco y mantener niveles adecuados de CO2.
 - **Control**: Pueden ser controlados automáticamente mediante sensores de temperatura y CO2.
 
-### Ventilador de Salida
+#### Ventilador de Salida
 
 Los ventiladores de salida se utilizan para extraer el aire caliente y húmedo del interior del invernadero, ayudando a mantener una temperatura y humedad óptimas.
 
 - **Ubicación**: Generalmente se colocan en el techo o en las paredes opuestas a los ventiladores de entrada.
 - **Función**: Extraer aire caliente y húmedo para evitar el sobrecalentamiento y la acumulación de humedad.
 - **Control**: Pueden ser controlados automáticamente mediante sensores de temperatura y humedad.
+</details>
+
+<details>
+<summary> Leds de espectro Azul y Rojo WS2812 </summary>
+
+### Leds WS2812
+[![ws2812 leds](/PROYECTO/ICCS_PROJECT/Images/ws2812-sensor.jpg)]()
+Los LEDs WS2812 son LEDs RGB direccionables individualmente, lo que significa que cada LED puede ser controlado de manera independiente. Son ideales para proyectos de iluminación decorativa y efectos visuales.
+
+- **Voltaje de operación**: 5V.
+- **Control**: Protocolo de comunicación de un solo cable.
+- **Colores**: Rojo, verde y azul (RGB).
+- **Uso**: Iluminación decorativa, efectos visuales, señalización.
 </details>
 
 ## LoRa
@@ -316,7 +337,7 @@ Combina la ventilación con sistemas de sombreado (mallas o pinturas reflectante
 </details>
 
 <details>
-<summary>Ultravioleta</summary>
+<summary>Ultravioleta Infrarrojo</summary>
 
 </details>
 
@@ -346,6 +367,8 @@ sudo apt-get install python-mysqldb
 
 <details>
 <summary>Enlace a servidor local</summary>
+
+### Servidor Local
 
 Ingresamos al host de mysql.
 
@@ -429,20 +452,67 @@ Ahora, de forma opcional se puede cambiar el propietario del directorio al host.
 
 ```bash
 sudo chown RPI4:RPI4 .
+sudo chown RPI4: html .
 ```
 Con ls se ve dos archivos ahora y se puede eliminar el archivo index anterior con rm y se genera codigo como [local web](/ICCS_PROJECT/Code/WEB/LOCAL/iccs.html).
 Para lograr el control de la base de datos se instala _php_ y _phpmyadmin_.
 
 ```bash
-sudo apt install php-mysql
+sudo apt install php libapache2-mod-php php-mysql
 sudo apt install phpmyadmin
 ```
+Se debe editar configuraciones de _apache_ para que se conecte con **php** y **phpmyadmin**.
+
+```bash
+sudo nano /etc/apache2/apache2.conf
+```
+
+En la última linea agregar:
 
 
+> Include /etc/phpmyadmin/apache.conf
+
+
+Igual se vuelven a cambiar directivas si se quiere solo usar archivos .php.
+
+```bash
+sudo nano /etc/apache2/mods-enabled/dir.conf
+```
+
+Se cambia index.php a la cabeza.
+
+> DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm
+
+Ahora, se reinicia apache.
+
+```bash
+sudo systemctl restart apache2
+```
+
+Ahora, se necesita ir a __/var/www/html__ donde el archivo se cambia por index.php y para poder editar se tiene:
+
+```bash
+sudo nano index.php
+```
+Ahora, podemos ir a nuestro navegador web y en la misma red se tiene que buscar
+
+> http://localhost/index.php
+> YOUR_IP_ADDRESS
+
+Como ya se tiene también **phpMyAdmin** se puede ver todos los datos de las bases de datos en:
+
+> YOUR_IP_ADDRESS/phpmyadmin
+
+Y para finalizar, se utiliza un código de php que permita conectarse y visualizar los datos de la tabla de datos y de otras tablas asociadas.
+
+>>> inserta una imagen de previsualizacion de como queda <<<
 </details>
 
 <details>
 <summary>Enlace a servidor web</summary>
+
+### Servidor web
+
 
 </details>
 
