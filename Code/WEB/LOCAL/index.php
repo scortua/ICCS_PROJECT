@@ -168,12 +168,12 @@
         foreach ($titulosCajas as $titulo) {
             $result = $conn->query($queries[$titulo]);
             if ($result && $row = $result->fetch_assoc()) {
-                echo "<div class='cuadro'>";
-                echo "<div class='cuadro-title'>" . htmlspecialchars($titulo) . "</div>";
-                echo "<p>Máximo: " . htmlspecialchars($row['max']) . "</p>";
-                echo "<p>Mínimo: " . htmlspecialchars($row['min']) . "</p>";
-                echo "<p>Promedio: " . htmlspecialchars($row['avg']) . "</p>";
-                echo "</div>";
+            echo "<div class='cuadro'>";
+            echo "<div class='cuadro-title'>" . htmlspecialchars($titulo) . "</div>";
+            echo "<p>📈 Máximo: " . htmlspecialchars($row['max']) . "</p>";
+            echo "<p>📉 Mínimo: " . htmlspecialchars($row['min']) . "</p>";
+            echo "<p>📌 Promedio: " . htmlspecialchars(number_format($row['avg'], 2)) . "</p>";
+            echo "</div>";
             }
         }
         echo '</div>';
