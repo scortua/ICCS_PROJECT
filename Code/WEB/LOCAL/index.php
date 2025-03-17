@@ -72,22 +72,32 @@
         .titulo-verde { 
             color: #4CAF50; 
             border-bottom: 3px solid #4CAF50;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.8em;
         }
         .titulo-azul { 
             color: #2196F3; 
             border-bottom: 3px solid #2196F3;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.8em;
         }
         .titulo-naranja { 
             color: #FF9800; 
             border-bottom: 3px solid #FF9800;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.8em;
         }
         .titulo-roja { 
             color: #F44336; 
             border-bottom: 3px solid #F44336;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.8em;
         }
         .titulo-morada { 
             color: #9C27B0; 
             border-bottom: 3px solid #9C27B0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.8em;
         }
         
         /* Para centrar los títulos de los sensores */
@@ -110,10 +120,20 @@
             padding: 20px;
             text-align: center;
         }
+        .cuadro:nth-child(1) { background-color: #FFB3BA; } /* Pastel rojo claro */
+        .cuadro:nth-child(2) { background-color: #FFDFBA; } /* Pastel naranja claro */
+        .cuadro:nth-child(3) { background-color: #FFFFBA; } /* Pastel amarillo claro */
+        .cuadro:nth-child(4) { background-color: #BAFFC9; } /* Pastel verde claro */
+        .cuadro:nth-child(5) { background-color: #BAE1FF; } /* Pastel azul claro */
+        .cuadro:nth-child(6) { background-color: #E1BAFF; } /* Pastel morado claro */
+        
         .cuadro-title {
-            font-size: 1.2em;
+            font-size: 1.5em;
             font-weight: bold;
             margin-bottom: 10px;
+            font-family: 'Georgia', serif;
+            color: #333;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
         }
     </style>
 </head>
