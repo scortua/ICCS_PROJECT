@@ -81,7 +81,7 @@ while True:
         print(f"ID: {id}, Data Length: {data_len}, Temp: {temp}, Hum: {hum}, PPM: {amb}, RSSI: {rssi}, SNR: {snr}")
         cursor.execute('''INSERT INTO DHT22 (time,Temperatura, Humedad) VALUES (NOW(),%s, %s);''',(temp,hum))
         db.commit()
-        cursor.execute('''INSERT INTO MQ-135 (time,CO2, N) VALUES (NOW(),%s, %s, %s);''',(co2,n))
+        cursor.execute('''INSERT INTO MQ_135 (time,CO2, N) VALUES (NOW(),%s, %s, %s);''',(co2,n))
         db.commit()
         print("Data saved to database ---> Received values\nWaiting for new data...")
         prev_temp = float(temp)
@@ -123,7 +123,7 @@ while True:
         print(f"Count:{counter}, ID:{id}, Data Length:{data_len}, Temp:{temp}, Hum:{hum}, RSSI:{rssi}, SNR:{snr}")
         cursor.execute('''INSERT INTO DHT22 (time,Temperatura, Humedad) VALUES (NOW(),%s, %s);''',(temp,hum))
         db.commit()
-        cursor.execute('''INSERT INTO MQ-135 (time,CO2, N) VALUES (NOW(),%s, %s, %s);''',(co2,n))
+        cursor.execute('''INSERT INTO MQ_135 (time,CO2, N) VALUES (NOW(),%s, %s, %s);''',(co2,n))
         db.commit()        
         print("Data saved to database ---> Random values\nWaiting for new data...")
 

@@ -6,19 +6,99 @@
     <title>Invernadero - Sistema de Monitoreo</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
-        .header { font-size: 2em; color: cyan; font-weight: bold; text-align: center; margin-bottom: 20px; }
+        .header { font-size: 2em; color: black; font-weight: bold; text-align: center; margin-bottom: 20px; }
         .connection-status { font-size: 1.2em; font-weight: bold; text-align: center; margin-bottom: 20px; }
         .success { color: green; }
         .error { color: red; }
-        table { width: 80%; border-collapse: collapse; margin-bottom: 30px; }
-        th { background-color: #4CAF50; color: white; text-align: left; padding: 12px; }
-        td { border: 1px solid #ddd; padding: 12px; }
-        tr:nth-child(even) { background-color: #f2f2f2; }
-        .sensor-title { font-size: 1.5em; color: #333; margin: 20px 0 10px 0; }
+        
+        /* Estilos para centrar las tablas con efecto de profundidad */
+        .table-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin-bottom: 40px;
+        }
+        
+        table { 
+            width: 80%; 
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* Efecto de profundidad */
+        }
+        
+        th { 
+            color: white; 
+            text-align: left; 
+            padding: 12px; 
+            font-weight: bold;
+        }
+        
+        td { 
+            border: none;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding: 12px; 
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        tr:nth-child(even) { 
+            background-color: rgba(0,0,0,0.05); 
+        }
+        
+        /* Estilos para diferentes colores de tablas */
+        .tabla-verde th { background-color: #4CAF50; }
+        .tabla-azul th { background-color: #2196F3; }
+        .tabla-naranja th { background-color: #FF9800; }
+        .tabla-roja th { background-color: #F44336; }
+        .tabla-morada th { background-color: #9C27B0; }
+        
+        /* Centrar el título del sensor con estilo */
+        .sensor-title { 
+            font-size: 1.5em; 
+            font-weight: bold;
+            padding: 5px 15px;
+            margin: 20px auto 10px auto;
+            border-radius: 5px;
+            display: inline-block;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        /* Colores para los títulos de sensores */
+        .titulo-verde { 
+            color: #4CAF50; 
+            border-bottom: 3px solid #4CAF50;
+        }
+        .titulo-azul { 
+            color: #2196F3; 
+            border-bottom: 3px solid #2196F3;
+        }
+        .titulo-naranja { 
+            color: #FF9800; 
+            border-bottom: 3px solid #FF9800;
+        }
+        .titulo-roja { 
+            color: #F44336; 
+            border-bottom: 3px solid #F44336;
+        }
+        .titulo-morada { 
+            color: #9C27B0; 
+            border-bottom: 3px solid #9C27B0;
+        }
+        
+        /* Para centrar los títulos de los sensores */
+        .sensor-heading {
+            text-align: center;
+            margin-top: 30px;
+        }
     </style>
 </head>
 <body>
-    <div class="header">Datos del Invernadero</div>
+    <div class="header">🪴Datos del Invernadero</div>
 
     <?php
     $MyUsername = "RPI4";
@@ -31,13 +111,35 @@
 
     // Check connection
     if ($conn->connect_error) {
-        echo '<div class="connection-status error">Connection failed: ' . $conn->connect_error . '</div>';
+        echo '<div class="connection-status error">❌ Connection failed: ' . $conn->connect_error . '</div>';
     } else {
-        echo '<div class="connection-status success">Connected successfully</div>';
+        echo '<div class="connection-status success">✅ Connected successfully</div>';
         
-        // Function to display sensor data in a table
-        function displaySensorData($conn, $tableName, $limit = 10) {
-            echo '<div class="sensor-title">Sensor: ' . htmlspecialchars($tableName) . '</div>';
+        // Array de colores disponibles
+        $colores = array(
+            'verde' => 'tabla-verde',
+            'azul' => 'tabla-azul',
+            'naranja' => 'tabla-naranja',
+            'rojo' => 'tabla-roja',
+            'morado' => 'tabla-morada'
+        );
+        
+        // Colores asignados a cada sensor (esto puedes modificarlo según tus preferencias)
+        $coloresSensores = array(
+            'DHT22' => 'verde',
+            'MQ_135' => 'azul'
+            // Puedes añadir más sensores aquí
+        );
+        
+        // Function to display sensor data in a table with custom color
+        function displaySensorData($conn, $tableName, $color, $colores, $limit = 10) {
+            // Determinar la clase de color para la tabla y el título
+            $colorClase = isset($colores[$color]) ? $colores[$color] : 'tabla-verde';
+            $colorTitulo = isset($colores[$color]) ? 'titulo-' . $color : 'titulo-verde';
+            
+            echo '<div class="sensor-heading">';
+            echo '<div class="sensor-title ' . $colorTitulo . '">Sensor: ' . htmlspecialchars($tableName) . '</div>';
+            echo '</div>';
             
             // Get column names for the table headers
             $columnsResult = $conn->query("SHOW COLUMNS FROM $tableName");
@@ -49,7 +151,8 @@
                 $result = $conn->query($query);
                 
                 if ($result && $result->num_rows > 0) {
-                    echo '<table>';
+                    echo '<div class="table-container">';
+                    echo '<table class="' . $colorClase . '">';
                     
                     // Table header
                     echo '<tr>';
@@ -69,17 +172,17 @@
                     }
                     
                     echo '</table>';
+                    echo '</div>';
                 } else {
-                    echo '<p>No hay datos disponibles para ' . htmlspecialchars($tableName) . '</p>';
+                    echo '<p style="text-align: center;">No hay datos disponibles para ' . htmlspecialchars($tableName) . '</p>';
                 }
             }
         }
         
-        // Display DHT22 sensor data
-        displaySensorData($conn, "DHT22");
-        
-        // To add another sensor table, just add another call to the function:
-        // displaySensorData($conn, "OtherSensorName");
+        // Display sensor data with custom colors
+        foreach ($coloresSensores as $sensor => $color) {
+            displaySensorData($conn, $sensor, $color, $colores);
+        }
         
         // Close the connection
         $conn->close();
