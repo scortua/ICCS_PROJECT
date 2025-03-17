@@ -95,6 +95,26 @@
             text-align: center;
             margin-top: 30px;
         }
+
+        /* Estilos para los cuadros */
+        .cuadros-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        .cuadro {
+            width: calc(33.333% - 20px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        .cuadro-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -130,6 +150,33 @@
             'MQ_135' => 'azul'
             // Puedes añadir más sensores aquí
         );
+
+        // Títulos de las cajas
+        $titulosCajas = array('Temperatura', 'Humedad', 'CO2', 'Nitrógeno', 'Cuadro 5', 'Cuadro 6');
+
+        // Consultas SQL para obtener los valores máximos, mínimos y promedios
+        $queries = array(
+            'Temperatura' => "SELECT MAX(temperatura) as max, MIN(temperatura) as min, AVG(temperatura) as avg FROM DHT22",
+            'Humedad' => "SELECT MAX(humedad) as max, MIN(humedad) as min, AVG(humedad) as avg FROM DHT22",
+            'CO2' => "SELECT MAX(co2) as max, MIN(co2) as min, AVG(co2) as avg FROM MQ_135",
+            'Nitrógeno' => "SELECT MAX(N) as max, MIN(N) as min, AVG(N) as avg FROM MQ_135",
+            'Cuadro 5' => "SELECT 100 as max, 50 as min, 75 as avg", // Ejemplo estático
+            'Cuadro 6' => "SELECT 200 as max, 100 as min, 150 as avg" // Ejemplo estático
+        );
+
+        echo '<div class="cuadros-container">';
+        foreach ($titulosCajas as $titulo) {
+            $result = $conn->query($queries[$titulo]);
+            if ($result && $row = $result->fetch_assoc()) {
+                echo "<div class='cuadro'>";
+                echo "<div class='cuadro-title'>" . htmlspecialchars($titulo) . "</div>";
+                echo "<p>Máximo: " . htmlspecialchars($row['max']) . "</p>";
+                echo "<p>Mínimo: " . htmlspecialchars($row['min']) . "</p>";
+                echo "<p>Promedio: " . htmlspecialchars($row['avg']) . "</p>";
+                echo "</div>";
+            }
+        }
+        echo '</div>';
         
         // Function to display sensor data in a table with custom color
         function displaySensorData($conn, $tableName, $color, $colores, $limit = 10) {
