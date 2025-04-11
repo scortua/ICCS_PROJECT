@@ -15,6 +15,7 @@ void setup() {
   Serial.begin(115200);
   pinMode(LED_BUILTIN, OUTPUT); // Initialize the LED_BUILTIN pin as an output
   pixels.begin(); // Initialize the NeoPixel strip
+  pixels.show();
   // create tasks
   xTaskCreate(neopixel, "neopixel", 1000, NULL, 2, NULL);
   xTaskCreate(blink, "blink", 128, NULL, 1, NULL);
@@ -29,7 +30,7 @@ void neopixel(void *parameter){
   while(1){
     if (increasing) {
       brightness += 4;
-      if (brightness >= 200) {
+      if (brightness >= 252) {
         increasing = false;
       }
     } else {
@@ -39,6 +40,7 @@ void neopixel(void *parameter){
       }
     }
     pixels.setBrightness(brightness);
+    Serial.println("Brightness: " + String(brightness));
     pixels.show();
     vTaskDelay(333 / portTICK_PERIOD_MS);
   }
