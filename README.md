@@ -2,7 +2,7 @@
 
 ![Git](https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white) ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54) ![C++](https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white) ![C](https://img.shields.io/badge/c-%2300599C.svg?style=for-the-badge&logo=c&logoColor=white) ![Raspberry Pi](https://img.shields.io/badge/-Raspberry_Pi-C51A4A?style=for-the-badge&logo=Raspberry-Pi) ![LoRaWAN](https://img.shields.io/badge/LoRaWAN-blue?style=for-the-badge&logo=lorawan&logoColor=white)
 
-[![Escuela Colombiana Ingenieros](Images/Logotipo_eci.png)](https://www.escuelaing.edu.co/)
+[![Escuela Colombiana Ingenieros](./Images/Logotipo_eci.png)](https://www.escuelaing.edu.co/)
 
 # ICCS_PROJECT
 Proyecto de internet de las cosas con convergencia en la ciberseguridad. Propósito de tener un proyecto que obtenga señales físicas y se actúe a esas señales a partir de un microcontrolador y que se use un tipo de comunicación muy usado mundialmente, para conectarse a un servidor local que permita guardar los datos y mantenerlos seguros.
@@ -41,50 +41,81 @@ Básicos comandos a usar:
 </details>
 
 <details>
-<summary> RP PICO </summary>
+<summary> RP PICO 2W </summary>
 
-### Raspberry pi pico
-[![PI PICO](Images/pi_pico.png)](https://www.raspberrypi.com/documentation/microcontrollers/pico-series.html#pico-1-family)
-La **Raspberry Pi Pico** es una placa de desarrollo económica y versátil basada en el microcontrolador **RP2040**, diseñado por Raspberry Pi. Es ideal para proyectos de electrónica, IoT, robótica y más.
+### Raspberry Pi Pico 2W
 
+[![PI PICO W](Images/pico_w.png)](https://www.raspberrypi.com/products/raspberry-pi-pico/)
+
+La **Raspberry Pi Pico W** es una versión mejorada de la Raspberry Pi Pico, que incluye conectividad inalámbrica **Wi-Fi** y **Bluetooth**. Mantiene el mismo microcontrolador **RP2040** y las características de bajo costo y versatilidad, lo que la hace ideal para proyectos de IoT, domótica y aplicaciones inalámbricas.
+
+- **Microcontrolador RP2040** diseñado por Raspberry Pi.
 - **Procesador Dual-Core ARM Cortex-M0+** a 133 MHz.
 - **264 KB de SRAM** integrada.
-- **2 MB de memoria Flash** en la placa (en el modelo estándar).
-- **DMA (Direct Memory Access)** para transferencias de datos eficientes.
+- **2 MB de memoria Flash** en la placa.
+- **Conectividad inalámbrica**:
+    - **Wi-Fi** (IEEE 802.11b/g/n).
+    - **Bluetooth 5.2** (compatible con Bluetooth Low Energy).
 - **26 pines GPIO** multifuncionales.
 - Soporte para **PWM**, **I2C**, **SPI**, **UART** y **ADC**.
 - **3 entradas analógicas** (12-bit ADC).
-Voltaje de operación: **1.8V a 5.5V**.
+- Sensor de temperatura integrado.
+- Voltaje de operación: **1.8V a 5.5V**.
 - Conector **Micro-USB** para alimentación y programación.
 - Modo de bajo consumo (**Sleep** y **Dormant**).
-- Soporte nativo para **MicroPython** y **C/C++**
+- Soporte nativo para **MicroPython** y **C/C++**.
 
-Pequeño ejemplo en micropython para encender y apagar progresivamente el led incluido en la tarjeta.
+Ejemplo en MicroPython para conectar a una red Wi-Fi y parpadear el LED integrado:
+
 ```python
+import network
 import time
-from machine import Pin, PWM
+import machine
 
-pwm = PWM(Pin(25))
+# Configuración de la red Wi-Fi
+WIFI_SSID = "YOUR_WIFI_SSID"
+WIFI_PASSWORD = "YOUR_WIFI_PASSWORD"
 
-pwm.freq(1000)
+# Inicializar el LED integrado
+led = machine.Pin("LED", machine.Pin.OUT)
 
-duty = 0
-direction = 1
+# Función para conectar a la red Wi-Fi
+def connect_wifi():
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    wlan.connect(WIFI_SSID, WIFI_PASSWORD)
+    
+    # Esperar a que la conexión se establezca
+    max_wait = 10
+    while max_wait > 0:
+        if wlan.status() < 0 or wlan.status() >= 3:
+            break
+        max_wait -= 1
+        print('Esperando conexión...')
+        time.sleep(1)
+    
+    # Manejar el fallo de conexión
+    if wlan.status() != 3:
+        raise RuntimeError('Fallo de conexión Wi-Fi')
+    else:
+        print('Conectado')
+        status = wlan.ifconfig()
+        print( 'Dirección IP = ' + status[0] )
+
+# Conectar a la red Wi-Fi
+connect_wifi()
+
+# Bucle principal para parpadear el LED
 while True:
-    duty += direction
-    if duty > 255:
-        duty = 255
-        direction = -1
-    elif duty < 0:
-        duty = 0
-        direction = 1
-    pwm.duty_u16(duty * duty)
-    time.sleep(0.001)
+    led.on()
+    time.sleep(0.5)
+    led.off()
+    time.sleep(0.5)
 ```
 </details>
 
 <details>
-<summary> RPI4 </summary>
+<summary> RPI 4 </summary>
 
 ### Raspberry pi 4
 
@@ -146,7 +177,7 @@ NC (opcional): Pin no conectado (no se usa).
 <summary> Sensor Humedad de suelo</summary>
 
 ### Sensor de Humedad de Suelo
-[]()
+[![HUMEDAD SUELO](Images/humedad-suelo.jpg)](https://www.google.com/imgres?q=sensor%20humedad%20suelo&imgurl=https%3A%2F%2Fcdnx.jumpseller.com%2Fmactornica%2Fimage%2F9804106%2F1.jpg%3F1647021912&imgrefurl=https%3A%2F%2Fwww.mactronica.com.co%2Fsensor-de-humedad-del-suelo-yl-100&docid=UkV42ojESuXpvM&tbnid=gec6r2yjmXNPmM&vet=12ahUKEwjy_pDUteeMAxXfQzABHRAcLhwQM3oECB0QAA..i&w=604&h=574&hcb=2&ved=2ahUKEwjy_pDUteeMAxXfQzABHRAcLhwQM3oECB0QAA)
 El sensor de humedad de suelo es un dispositivo utilizado para medir el contenido de agua en el suelo. Es ampliamente utilizado en proyectos de jardinería, agricultura y sistemas de riego automatizados para asegurar que las plantas reciban la cantidad adecuada de agua.
 
 - **Rango de medición**: Proporciona una lectura analógica que varía según la humedad del suelo.

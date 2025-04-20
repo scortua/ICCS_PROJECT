@@ -167,12 +167,15 @@
         // Colores asignados a cada sensor (esto puedes modificarlo según tus preferencias)
         $coloresSensores = array(
             'DHT22' => 'verde',
-            'MQ_135' => 'azul'
+            'MQ_135' => 'azul',
+            'LEDS' => 'morado',
+            'WATER_PUMP' => 'naranja',
+            'YL' => 'rojo'
             // Puedes añadir más sensores aquí
         );
 
         // Títulos de las cajas
-        $titulosCajas = array('Temperatura', 'Humedad', 'CO2', 'Nitrógeno', 'Cuadro 5', 'Cuadro 6');
+        $titulosCajas = array('Temperatura', 'Humedad', 'CO2', 'Nitrógeno', 'Suelo', 'Agua');
 
         // Consultas SQL para obtener los valores máximos, mínimos y promedios
         $queries = array(
@@ -180,8 +183,8 @@
             'Humedad' => "SELECT MAX(humedad) as max, MIN(humedad) as min, AVG(humedad) as avg FROM DHT22",
             'CO2' => "SELECT MAX(co2) as max, MIN(co2) as min, AVG(co2) as avg FROM MQ_135",
             'Nitrógeno' => "SELECT MAX(N) as max, MIN(N) as min, AVG(N) as avg FROM MQ_135",
-            'Cuadro 5' => "SELECT 100 as max, 50 as min, 75 as avg", // Ejemplo estático
-            'Cuadro 6' => "SELECT 200 as max, 100 as min, 150 as avg" // Ejemplo estático
+            'Suelo' => "SELECT 100 as max, 0 as min, 50 as avg",
+            'Agua' => "SELECT 100 as max, 0 as min, 50 as avg"
         );
 
         echo '<div class="cuadros-container">';
