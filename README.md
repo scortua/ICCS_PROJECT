@@ -537,6 +537,7 @@ Como ya se tiene también **phpMyAdmin** se puede ver todos los datos de las bas
 Y para finalizar, se utiliza un código de php que permita conectarse y visualizar los datos de la tabla de datos y de otras tablas asociadas.
 
 >>> inserta una imagen de previsualizacion de como queda <<<
+[Link ayuda](https://www.youtube.com/watch?v=DVGMDYpk5Ds)
 </details>
 
 <details>
