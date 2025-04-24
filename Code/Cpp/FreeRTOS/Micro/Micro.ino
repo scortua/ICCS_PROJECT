@@ -78,11 +78,6 @@ void init_lora(){
     send_ms("AT+NETWORKID=5"); // colocando direccion de red
     delay(200);
     send_ms("AT+PARAMETER=9,7,1,12"); // RF parameters
-    delay(200);
-    send_ms("AT+MODE?"); // operation mode
-    delay(200);
-    send_ms("AT+CPIN?"); // contraseña
-    delay(200);
 }
 
 void send_ms(String msg){
@@ -147,6 +142,7 @@ void neopixel(void *parameter){
     (void)parameter; // Evitar advertencias de compilación
     while (1){
         Serial.println("luces" );
+        vTaskDelay(ms_neo / portTICK_PERIOD_MS); // Esperar 40 ms
     }
 }
 
@@ -163,9 +159,6 @@ void pump(void *parameter){
 void wifitask(void *parameter){
     (void)parameter; // Evitar advertencias de compilación
     WiFi.begin(SSID, PASSWORD); // Conectar a WiFi
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(1000);
-    }
     while (1){
         Serial.println("Conectado a WiFi...");
         Serial.println("IP Address: " + WiFi.localIP().toString());

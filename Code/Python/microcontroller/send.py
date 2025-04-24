@@ -1,6 +1,6 @@
 from machine import UART, Pin
 import time, random
-from PicoDHT22 import PicoDHT22   
+from Code.Python.libraries.PicoDHT22 import PicoDHT22   
    
 uart0 = UART(0, baudrate=115200, tx=Pin(12), rx=Pin(13)) #inicializar uart0    
 dht = PicoDHT22(Pin(14,Pin.IN,Pin.PULL_UP))
