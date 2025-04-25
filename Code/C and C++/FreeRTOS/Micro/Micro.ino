@@ -149,9 +149,7 @@ void neopixel(void *parameter){
 void pump(void *parameter){
     (void)parameter; // Evitar advertencias de compilación
     while (1){
-        digitalWrite(LED_BUILTIN, HIGH); // Enciende el LED
-        vTaskDelay(333 / portTICK_PERIOD_MS); // Espera 500 ms
-        digitalWrite(LED_BUILTIN, LOW); // Apaga el LED
+        Serial.println("Bomba encendida" );
         vTaskDelay(333 / portTICK_PERIOD_MS); // Espera 500 ms
     }
 }

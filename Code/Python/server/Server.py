@@ -11,7 +11,7 @@ cursor = db.cursor() # Crear un cursor
 
 uart0 = serial.Serial("/dev/ttyS0", baudrate=115200, timeout=1)
 
-VarInMs = 7 #variables recibidas en el mensaje
+VarInMs = 8 #variables recibidas en el mensaje
 CommasInMs = VarInMs - 1 #comas en el mensaje
 counter = 0
 # Variables de temperatura
@@ -125,7 +125,7 @@ while True:
         data_len = len(str(temp) + ',' + str(hum) + ',' + str(amb) + ',' + str(dirt) +',' + str(rssi) + ',' + str(snr))
         rssi = random.randint(-50, 0)
         snr = random.randint(0, 15)
-        # Drastic change after 7 iterations
+        # Drastic change after 8 iterations
         if counter <= 8:
             counter += 1
         if counter > 8:
