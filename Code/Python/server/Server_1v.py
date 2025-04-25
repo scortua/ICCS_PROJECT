@@ -35,39 +35,39 @@ class LoRa:
         self.send_command("AT+NETWORKID=5")
         self.send_command("AT+PARAMETER=9,7,1,12")
 
-# Funciones de procesamiento de datos
+    def receive_data(self):
+        rx_data = self.uart.read_all().decode('utf-8')
+        if rx_data:
+            print(f"Datos recibidos: {rx_data}")
+        return rx_data
+
+# Procesador de datos
 class SensorDataProcessor:
     def __init__(self):
-        # Variables de temperatura
         self.temp_max = 25.0
         self.temp_min = 17.0
-        self.prev_temp = 0
-        # Variables de humedad
         self.hum_max = 75.0
         self.hum_min = 45.0
-        self.prev_hum = 0
-        # Variables de MQ-135
         self.amb_max = 1000
         self.amb_min = 400
-        self.prev_amb = 0
-        # Variables de YL
         self.dirt_max = 1000
         self.dirt_min = 0
-        self.prev_dirt = 0   
-        self.counter = 0
 
-    def process_data(self, data):
-        if len(data) == 8:  # Datos válidos
-            id, data_len, temp, hum, amb, dirt, rssi, snr = data
-            nitro, co2 = self.calculate_ambient_values(float(amb))
+    def process_data(self, raw_data):
+        data = raw_data.replace("+RCV=", "").split(",")
+        if len(data) == 8:
+            id, data_len, temp, hum, amb, dirt, led, water, rssi, snr = data
+            n, co2 = self.calculate_ambient_values(float(amb))
             return {
                 "id": id,
                 "data_len": data_len,
                 "temp": float(temp),
                 "hum": float(hum),
                 "co2": co2,
-                "n": nitro,
+                "n": n,
                 "dirt": float(dirt),
+                "led": led,
+                "water": water,
                 "rssi": int(rssi),
                 "snr": int(snr)
             }
@@ -86,17 +86,21 @@ class SensorDataProcessor:
         hum = round(random.uniform(self.hum_min, self.hum_max), 2)
         amb = round(random.uniform(self.amb_min, self.amb_max), 2)
         dirt = round(random.uniform(self.dirt_min, self.dirt_max), 2)
+        led = random.choice(['on', 'off'])
+        water = random.choice(['That´s active 1 min', 'That´s unactive'])
         rssi = random.randint(-50, 0)
         snr = random.randint(0, 15)
         n, co2 = self.calculate_ambient_values(amb)
         return {
             "id": 1,
-            "data_len": len(f"{temp},{hum},{amb},{dirt},{rssi},{snr}"),
+            "data_len": len(f"{temp},{hum},{amb},{dirt},{led},{water}{rssi},{snr}"),
             "temp": temp,
             "hum": hum,
             "co2": co2,
             "n": n,
             "dirt": dirt,
+            "led": led,  
+            "water": water, 
             "rssi": rssi,
             "snr": snr
         }
@@ -105,7 +109,10 @@ class SensorDataProcessor:
 def save_to_database(cursor, data):
     cursor.execute('''INSERT INTO DHT22 (time, Temperatura, Humedad) VALUES (NOW(), %s, %s);''', (data["temp"], data["hum"]))
     cursor.execute('''INSERT INTO MQ_135 (time, CO2, N) VALUES (NOW(), %s, %s);''', (data["co2"], data["n"]))
-    cursor.execute('''INSERT INTO YL (time, DIRT) VALUES (NOW(), %s);''', (data["dirt"],))
+    cursor.execute('''INSERT INTO YL (time, Percentage) VALUES (NOW(), %s);''', (data["dirt"],))
+    cursor.execute('''INSERT INTO LEDS (time, Activation) VALUES (NOW(), %s);''', (data["led"]))  # Assuming LED is always activated
+    cursor.execute('''INSERT INTO PUMP (time, Activation) VALUES (NOW(), %s);''', (data["water"]))  # Assuming Pump is always activated
+    print(f"Temperatura {data['temp']}, Humedad {data['hum']}, CO2 {data['co2']}, N {data['n']}, Tierra {data['dirt']}, RSSI {data['rssi']}, SNR {data['snr']}")
     print("Datos guardados en la base de datos.")
 
 # Main
@@ -118,12 +125,13 @@ if __name__ == "__main__":
     lora.initialize()
 
     while True:
-        rx_data = lora.uart.read_all().decode('utf-8')
-        if rx_data:
-            print(f"Datos recibidos: {rx_data}")
-            msg = rx_data.replace("+RCV=", "")
-            data = msg.split(",")
-            processed_data = processor.process_data(data)
-            save_to_database(cursor, processed_data)
-            db.commit()
+        raw_data = lora.receive_data()
+        if raw_data:
+            processed_data = processor.process_data(raw_data)
+        else:
+            print("No se recibieron datos, generando datos aleatorios...")
+            processed_data = processor.generate_random_data()
+
+        save_to_database(cursor, processed_data)
+        db.commit()
         time.sleep(30)

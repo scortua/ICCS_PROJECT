@@ -11,7 +11,7 @@ cursor = db.cursor() # Crear un cursor
 
 uart0 = serial.Serial("/dev/ttyS0", baudrate=115200, timeout=1)
 
-VarInMs = 8 #variables recibidas en el mensaje
+VarInMs = 10 #variables recibidas en el mensaje
 CommasInMs = VarInMs - 1 #comas en el mensaje
 counter = 0
 # Variables de temperatura
@@ -25,12 +25,16 @@ prev_hum = 0
 # Variables de MQ-135
 amb_max = 1000
 amb_min = 400
-ambient = 0
+ambiente = 0
 prev_amb = 0
 # Variable de YL
 dirt_max = 1000
 dirt_min = 0
 prev_dirt = 0
+# leds
+led = 'off'
+# bomba agua
+pump = 'It is off'
 
 def send_ms(ms):
     uart0.write((ms + "\r\n").encode())
@@ -54,7 +58,7 @@ def init_lora():
     send_ms("AT+PARAMETER=9,7,1,12") #RF parameters
     time.sleep(0.1)
 
-def verificar_():
+def verificar_(amb):
     if amb == 0:
         amb = 500
     co2 = amb * 10.57
@@ -77,16 +81,22 @@ while True:
         temp = data[2]
         hum = data[3]
         amb = data[4]
-        n,co2,amb = verificar_()
+        n,co2,amb = verificar_(amb)
         dirt = data[5] # Dirt value from YL
-        rssi = data[6] # Received Signal Strength Indicator
-        snr = data[7]  # Signal to Noise Ratio
-        print(f"ID: {id}, Data Length: {data_len}, Temp: {temp}, Hum: {hum}, PPM: {amb}, RSSI: {rssi}, SNR: {snr}")
+        led = data[6] # LED status
+        pump = data[7]
+        rssi = data[8] # Received Signal Strength Indicator
+        snr = data[9]  # Signal to Noise Ratio
+        print(f"ID: {id}, Data Length: {data_len}, Temp: {temp}, Hum: {hum}, Amb:{amb}, Tierra:{dirt}, led:{led}, Bomba:{pump} RSSI: {rssi}, SNR: {snr}")
         cursor.execute('''INSERT INTO DHT22 (time,Temperatura, Humedad) VALUES (NOW(),%s, %s);''',(temp,hum))
         db.commit()
-        cursor.execute('''INSERT INTO MQ_135 (time,CO2, N) VALUES (NOW(),%s, %s, %s);''',(co2,n))
+        cursor.execute('''INSERT INTO MQ_135 (time,CO2, N) VALUES (NOW(),%s, %s);''',(co2,n))
         db.commit()
-        cursor.execute('''INSERT INTO YL (time, DIRT) VALUES (NOW(), %s);''',(dirt,))
+        cursor.execute('''INSERT INTO YL (time, Percentage) VALUES (NOW(), %s);''',(dirt,))
+        db.commit()
+        cursor.execute('''INSERT INTO LEDS (time, Activation) VALUES (NOW(), %s);''',(led))
+        db.commit()
+        cursor.execute('''INSERT INTO WATER_PUMP (time, Activation) VALUES (NOW(), %s);''',(pump))
         db.commit()
         print("Data saved to database ---> Received values\nWaiting for new data...")
         prev_temp = float(temp)
@@ -107,7 +117,7 @@ while True:
             amb = round(random.uniform(prev_amb - 50, prev_amb + 50), 2)
         else:
             amb = round(random.uniform(amb_min, amb_max), 2)
-        n,co2,amb = verificar_()
+        n,co2,amb = verificar_(amb)
         # Simulate dara reception for dirt
         if prev_dirt != 0:
             dirt = round(random.uniform(prev_dirt - 50, prev_dirt + 50), 2)
@@ -122,9 +132,9 @@ while True:
         amb_min = max(amb - 50, 400)
         dirt_max = min(dirt + 50, 1000)
         dirt_min = max(dirt - 50, 0)
-        data_len = len(str(temp) + ',' + str(hum) + ',' + str(amb) + ',' + str(dirt) +',' + str(rssi) + ',' + str(snr))
         rssi = random.randint(-50, 0)
         snr = random.randint(0, 15)
+        data_len = len(str(temp) + ',' + str(hum) + ',' + str(amb) + ',' + str(dirt) + ',' + led + ',' + pump + ',' + str(rssi) + ',' + str(snr))
         # Drastic change after 8 iterations
         if counter <= 8:
             counter += 1
@@ -138,12 +148,16 @@ while True:
             dirt_max = 1000
             dirt_min = 0
             counter = 0
-        print(f"Count:{counter}, ID:{id}, Data Length:{data_len}, Temp:{temp}, Hum:{hum}, RSSI:{rssi}, SNR:{snr}")
+        print(f"Count:{counter}, ID:{id}, Data Length:{data_len}, Temp:{temp}, Hum:{hum}, Amb:{amb}, Tierra:{dirt}, RSSI:{rssi}, SNR:{snr}")
         cursor.execute('''INSERT INTO DHT22 (time,Temperatura, Humedad) VALUES (NOW(),%s, %s);''',(temp,hum))
         db.commit()
-        cursor.execute('''INSERT INTO MQ_135 (time,CO2, N) VALUES (NOW(),%s, %s, %s);''',(co2,n))
+        cursor.execute('''INSERT INTO MQ_135 (time,CO2, N) VALUES (NOW(),%s, %s);''',(co2,n))
         db.commit()        
-        cursor.execute('''INSERT INTO YL (time, DIRT) VALUES (NOW(), %s);''',(dirt,))
+        cursor.execute('''INSERT INTO YL (time, Percentage) VALUES (NOW(), %s);''',(dirt,))
+        db.commit()
+        cursor.execute('''INSERT INTO LEDS (time, Activation) VALUES (NOW(), %s);''',(led))
+        db.commit()
+        cursor.execute('''INSERT INTO WATER_PUMP (time, Activation) VALUES (NOW(), %s);''',(pump))
         db.commit()
         print("Data saved to database ---> Random values\nWaiting for new data...")
 
