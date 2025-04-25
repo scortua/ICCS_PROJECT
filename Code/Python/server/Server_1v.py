@@ -18,7 +18,7 @@ def init_cursor(db):
 # Configuración de LoRa
 class LoRa:
     def __init__(self, port="/dev/ttyS0", baudrate=115200, timeout=1):
-        self.uart = serial.Serial(port, baudrate=baudrate, timeout=timeout)
+        self.uart = serial.Serial(port, baudrate=115200, timeout=timeout)
 
     def send_command(self, command):
         self.uart.write((command + "\r\n").encode())
@@ -107,13 +107,21 @@ class SensorDataProcessor:
 
 # Guardar datos en la base de datos
 def save_to_database(cursor, data):
-    cursor.execute('''INSERT INTO DHT22 (time, Temperatura, Humedad) VALUES (NOW(), %s, %s);''', (data["temp"], data["hum"]))
-    cursor.execute('''INSERT INTO MQ_135 (time, CO2, N) VALUES (NOW(), %s, %s);''', (data["co2"], data["n"]))
-    cursor.execute('''INSERT INTO YL (time, Percentage) VALUES (NOW(), %s);''', (data["dirt"],))
-    cursor.execute('''INSERT INTO LEDS (time, Activation) VALUES (NOW(), %s);''', (data["led"]))  # Assuming LED is always activated
-    cursor.execute('''INSERT INTO PUMP (time, Activation) VALUES (NOW(), %s);''', (data["water"]))  # Assuming Pump is always activated
-    print(f"Temperatura {data['temp']}, Humedad {data['hum']}, CO2 {data['co2']}, N {data['n']}, Tierra {data['dirt']}, RSSI {data['rssi']}, SNR {data['snr']}")
-    print("Datos guardados en la base de datos.")
+    # Validar que los datos sean correctos antes de insertarlos
+    try:
+        cursor.execute('''INSERT INTO DHT22 (time, Temperatura, Humedad) VALUES (NOW(), %s, %s);''', (data["temp"], data["hum"]))
+        cursor.execute('''INSERT INTO MQ_135 (time, CO2, N) VALUES (NOW(), %s, %s);''', (data["co2"], data["n"]))
+        cursor.execute('''INSERT INTO YL (time, DIRT) VALUES (NOW(), %s);''', (data["dirt"],))
+
+        # Validar y guardar el estado del LED si está presente
+        if "led" in data and isinstance(data["led"], (int, str)):
+            cursor.execute('''INSERT INTO LEDS (time, Activation) VALUES (NOW(), %s);''', (data["led"],))
+        else:
+            print("Advertencia: El valor de 'led' no es válido o no está presente en los datos.")
+
+        print("Datos guardados en la base de datos.")
+    except Exception as e:
+        print(f"Error al guardar en la base de datos: {e}")
 
 # Main
 if __name__ == "__main__":
