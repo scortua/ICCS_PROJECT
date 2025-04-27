@@ -111,7 +111,7 @@ def save_to_database(cursor, data):
     try:
         cursor.execute('''INSERT INTO DHT22 (time, Temperatura, Humedad) VALUES (NOW(), %s, %s);''', (data["temp"], data["hum"]))
         cursor.execute('''INSERT INTO MQ_135 (time, CO2, N) VALUES (NOW(), %s, %s);''', (data["co2"], data["n"]))
-        cursor.execute('''INSERT INTO YL (time, DIRT) VALUES (NOW(), %s);''', (data["dirt"],))
+        cursor.execute('''INSERT INTO YL (time, Percentage) VALUES (NOW(), %s);''', (data["dirt"],))
 
         # Validar y guardar el estado del LED si está presente
         if "led" in data and isinstance(data["led"], (int, str)):

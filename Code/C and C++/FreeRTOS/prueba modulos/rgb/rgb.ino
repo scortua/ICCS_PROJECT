@@ -2,8 +2,8 @@
 #include <task.h>
 
 #include <Adafruit_NeoPixel.h>
-#define PIN 2
-#define NUMPIXELS 22
+#define PIN 0
+#define NUMPIXELS 62
 Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 uint8_t brightness = 0;
 
