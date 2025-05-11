@@ -1,6 +1,6 @@
-import serial, time
+import serial, time, random, json, requests
 import MySQLdb
-import random
+from libraries.server import reyax
 
 db = MySQLdb.connect(host="localhost", 
                      user="RPI4",
@@ -10,53 +10,16 @@ db = MySQLdb.connect(host="localhost",
 cursor = db.cursor() # Crear un cursor
 
 uart0 = serial.Serial("/dev/ttyS0", baudrate=115200, timeout=1)
+lora = reyax.Reyax(uart0) # Inicializar el objeto Reyax
 
-VarInMs = 10 #variables recibidas en el mensaje
-CommasInMs = VarInMs - 1 #comas en el mensaje
-counter = 0
-# Variables de temperatura
-temp_max = 25.0 
-temp_min = 17.0
-prev_temp = 0
-# Variables de humedad
-hum_max = 75.0
-hum_min = 45.0
-prev_hum = 0
-# Variables de MQ-135
-amb_max = 1000
-amb_min = 400
-ambiente = 0
-prev_amb = 0
-# Variable de YL
-dirt_max = 1000
-dirt_min = 0
-prev_dirt = 0
+#url = 'https://api.openweathermap.org/data/2.5/weather?q=Bogota,CO&units=metric&appid=69285e08908ba2461be431c348d1e02d'
+#response = requests.get(url)
+#datos = response.json()
+
 # leds
 led = 'off'
 # bomba agua
 pump = 'It is off'
-
-def send_ms(ms):
-    uart0.write((ms + "\r\n").encode())
-    print(ms)
-    time.sleep(0.1)
-    rec = bytes()
-    while uart0.in_waiting>0:
-        rec += uart0.read(1)
-    print(rec.decode('utf-8'))
-    time.sleep(0.1)
-
-def init_lora():
-    print("\nConfigurando parametro antena LoRa\n")
-    time.sleep(0.5)
-    send_ms("AT") #verificar estado de comandos
-    time.sleep(0.1)
-    send_ms("AT+ADDRESS=2") #colocar direccion lora 0 - 65535
-    time.sleep(0.1)
-    send_ms("AT+NETWORKID=5") #colocando direccion de red
-    time.sleep(0.1)
-    send_ms("AT+PARAMETER=9,7,1,12") #RF parameters
-    time.sleep(0.1)
 
 def verificar_(amb):
     if amb == 0:
@@ -65,100 +28,35 @@ def verificar_(amb):
     n = amb * 0.1
     return n,co2,amb
 
-init_lora()
 while True:
-    rxData = bytes()
-    while uart0.in_waiting > 0:
-        rxData += uart0.read(uart0.in_waiting)
-    msg = rxData.decode('utf-8')
-    print('\n' + msg)
-    new_msg = msg.replace('+RCV=', '')
-    data = new_msg.split(",")
-
-    if len(data) == VarInMs:
-        id = data[0]
-        data_len = data[1]
-        temp = data[2]
-        hum = data[3]
-        amb = data[4]
-        n,co2,amb = verificar_(amb)
-        dirt = data[5] # Dirt value from YL
-        led = data[6] # LED status
-        pump = data[7]
-        rssi = data[8] # Received Signal Strength Indicator
-        snr = data[9]  # Signal to Noise Ratio
-        print(f"ID: {id}, Data Length: {data_len}, Temp: {temp}, Hum: {hum}, Amb:{amb}, Tierra:{dirt}, led:{led}, Bomba:{pump} RSSI: {rssi}, SNR: {snr}")
-        cursor.execute('''INSERT INTO DHT22 (time,Temperatura, Humedad) VALUES (NOW(),%s, %s);''',(temp,hum))
-        db.commit()
-        cursor.execute('''INSERT INTO MQ_135 (time,CO2, N) VALUES (NOW(),%s, %s);''',(co2,n))
-        db.commit()
-        cursor.execute('''INSERT INTO YL (time, Percentage) VALUES (NOW(), %s);''',(dirt,))
-        db.commit()
-        cursor.execute('''INSERT INTO LEDS (time, Activation) VALUES (NOW(), %s);''',(led))
-        db.commit()
-        cursor.execute('''INSERT INTO WATER_PUMP (time, Activation) VALUES (NOW(), %s);''',(pump))
-        db.commit()
-        print("Data saved to database ---> Received values\nWaiting for new data...")
-        prev_temp = float(temp)
-        prev_hum = float(hum)
-        prev_amb = float(amb)
-        prev_dirt = float(dirt)
-    else:
-        id = 1
-        # Simulate data reception temperature and humidity
-        if prev_temp != 0 and prev_hum != 0:
-            temp = round(random.uniform(prev_temp - 0.5, prev_temp + 0.5), 2)
-            hum = round(random.uniform(prev_hum - 1.5, prev_hum + 1.5), 2)
+    try:
+        msg = lora.receive()
+        msg_json = json.loads(msg)
+        data = msg_json['data']
+        # Split data string by commas and extract values
+        values = data.split(',')
+        if len(values) >= 6:  # Ensure we have at least 6 values
+            temp = float(values[0])
+            hum = float(values[1])
+            amb = int(values[2])
+            dirt = int(values[3])
+            led = values[4]
+            pump = values[5]
+            # Process ambiente value
+            n, co2, amb = verificar_(amb)
+            # Print extracted values
+            print(f"Temp: {temp}°C, Hum: {hum}%, Ambiente: {amb}, Tierra: {dirt}, LED: {led}, Bomba: {pump}")
+            # Save to database
+            cursor.execute('''INSERT INTO DHT22 (time, Temperatura, Humedad) VALUES (NOW(), %s, %s);''', (temp, hum))
+            cursor.execute('''INSERT INTO MQ_135 (time, CO2, N) VALUES (NOW(), %s, %s);''', (co2, n))
+            cursor.execute('''INSERT INTO YL (time, Percentage) VALUES (NOW(), %s);''', (dirt,))
+            cursor.execute('''INSERT INTO LEDS (time, Activation) VALUES (NOW(), %s);''', (led,))
+            cursor.execute('''INSERT INTO WATER_PUMP (time, Activation) VALUES (NOW(), %s);''', (pump,))
+            db.commit()
+            print("Data saved to database ---> Received values\nWaiting for new data...")
         else:
-            temp = round(random.uniform(temp_min, temp_max), 2)
-            hum = round(random.uniform(hum_min, hum_max), 2)
-        # Simulate data reception for CO2 and N
-        if prev_amb != 0:
-            amb = round(random.uniform(prev_amb - 50, prev_amb + 50), 2)
-        else:
-            amb = round(random.uniform(amb_min, amb_max), 2)
-        n,co2,amb = verificar_(amb)
-        # Simulate dara reception for dirt
-        if prev_dirt != 0:
-            dirt = round(random.uniform(prev_dirt - 50, prev_dirt + 50), 2)
-        else:
-            dirt = round(random.uniform(dirt_min, dirt_max), 2)
-        # Ensure the new max/min values stay within the initial range
-        temp_max = min(temp + 0.5, 25.0)
-        temp_min = max(temp - 0.5, 17.0)
-        hum_max = min(hum + 1.5, 75.0)
-        hum_min = max(hum - 1.5, 45.0)
-        amb_max = min(amb + 50, 1000)
-        amb_min = max(amb - 50, 400)
-        dirt_max = min(dirt + 50, 1000)
-        dirt_min = max(dirt - 50, 0)
-        rssi = random.randint(-50, 0)
-        snr = random.randint(0, 15)
-        data_len = len(str(temp) + ',' + str(hum) + ',' + str(amb) + ',' + str(dirt) + ',' + led + ',' + pump + ',' + str(rssi) + ',' + str(snr))
-        # Drastic change after 8 iterations
-        if counter <= 8:
-            counter += 1
-        if counter > 8:
-            temp_max = 25.0
-            temp_min = 17.0
-            hum_max = 75.0
-            hum_min = 45.0
-            amb_max = 1000
-            amb_min = 400
-            dirt_max = 1000
-            dirt_min = 0
-            counter = 0
-        print(f"Count:{counter}, ID:{id}, Data Length:{data_len}, Temp:{temp}, Hum:{hum}, Amb:{amb}, Tierra:{dirt}, RSSI:{rssi}, SNR:{snr}")
-        cursor.execute('''INSERT INTO DHT22 (time,Temperatura, Humedad) VALUES (NOW(),%s, %s);''',(temp,hum))
-        db.commit()
-        cursor.execute('''INSERT INTO MQ_135 (time,CO2, N) VALUES (NOW(),%s, %s);''',(co2,n))
-        db.commit()        
-        cursor.execute('''INSERT INTO YL (time, Percentage) VALUES (NOW(), %s);''',(dirt,))
-        db.commit()
-        cursor.execute('''INSERT INTO LEDS (time, Activation) VALUES (NOW(), %s);''',(led))
-        db.commit()
-        cursor.execute('''INSERT INTO WATER_PUMP (time, Activation) VALUES (NOW(), %s);''',(pump))
-        db.commit()
-        print("Data saved to database ---> Random values\nWaiting for new data...")
-
-    time.sleep(30)
+            print("Invalid data format received")
+        time.sleep(10)
+    except Exception as e:
+        print(f"Error: {e}")
+        time.sleep(1)
