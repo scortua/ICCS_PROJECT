@@ -55,7 +55,7 @@ class SensorDataProcessor:
 
     def process_data(self, raw_data):
         data = raw_data.replace("+RCV=", "").split(",")
-        if len(data) == 8:
+        if len(data) >= 10:  # Changed from 8 to 10 since we're expecting 10 values
             id, data_len, temp, hum, amb, dirt, led, water, rssi, snr = data
             n, co2 = self.calculate_ambient_values(float(amb))
             return {
@@ -109,17 +109,12 @@ class SensorDataProcessor:
 def save_to_database(cursor, data):
     # Validar que los datos sean correctos antes de insertarlos
     try:
-        cursor.execute('''INSERT INTO DHT22 (time, Temperatura, Humedad) VALUES (NOW(), %s, %s);''', (data[temp], data[hum]))
-        cursor.execute('''INSERT INTO MQ_135 (time, CO2, N) VALUES (NOW(), %s, %s);''', (data[co2], data[n]))
-        cursor.execute('''INSERT INTO YL (time, Percentage) VALUES (NOW(), %s);''', (data[dirt],))
-        cursor.execute('''INSERT INTO LEDS (time, Activation) VALUES (NOW(), %s);''', (data[led],))
-        cursor.execute('''INSERT INTO WATER_PUMP (time, Activation) VALUES (NOW(), %s);''', (data[water],))
-        # Validar y guardar el estado del LED si está presente
-        if "led" in data and isinstance(data["led"], (int, str)):
-            cursor.execute('''INSERT INTO LEDS (time, Activation) VALUES (NOW(), %s);''', (data["led"],))
-        else:
-            print("Advertencia: El valor de 'led' no es válido o no está presente en los datos.")
-
+        cursor.execute('''INSERT INTO DHT22 (time, Temperatura, Humedad) VALUES (NOW(), %s, %s);''', (data["temp"], data["hum"]))
+        cursor.execute('''INSERT INTO MQ_135 (time, CO2, N) VALUES (NOW(), %s, %s);''', (data["co2"], data["n"]))
+        cursor.execute('''INSERT INTO YL (time, Percentage) VALUES (NOW(), %s);''', (data["dirt"],))
+        cursor.execute('''INSERT INTO LEDS (time, Activation) VALUES (NOW(), %s);''', (data["led"],))
+        cursor.execute('''INSERT INTO WATER_PUMP (time, Activation) VALUES (NOW(), %s);''', (data["water"],))
+        
         print("Datos guardados en la base de datos.")
     except Exception as e:
         print(f"Error al guardar en la base de datos: {e}")
