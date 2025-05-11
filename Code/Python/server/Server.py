@@ -1,6 +1,6 @@
 import serial, time, random, json, requests
 import MySQLdb
-from libraries.server import reyax
+import reyax
 
 db = MySQLdb.connect(host="localhost", 
                      user="RPI4",

@@ -109,10 +109,11 @@ class SensorDataProcessor:
 def save_to_database(cursor, data):
     # Validar que los datos sean correctos antes de insertarlos
     try:
-        cursor.execute('''INSERT INTO DHT22 (time, Temperatura, Humedad) VALUES (NOW(), %s, %s);''', (data["temp"], data["hum"]))
-        cursor.execute('''INSERT INTO MQ_135 (time, CO2, N) VALUES (NOW(), %s, %s);''', (data["co2"], data["n"]))
-        cursor.execute('''INSERT INTO YL (time, Percentage) VALUES (NOW(), %s);''', (data["dirt"],))
-
+        cursor.execute('''INSERT INTO DHT22 (time, Temperatura, Humedad) VALUES (NOW(), %s, %s);''', (data[temp], data[hum]))
+        cursor.execute('''INSERT INTO MQ_135 (time, CO2, N) VALUES (NOW(), %s, %s);''', (data[co2], data[n]))
+        cursor.execute('''INSERT INTO YL (time, Percentage) VALUES (NOW(), %s);''', (data[dirt],))
+        cursor.execute('''INSERT INTO LEDS (time, Activation) VALUES (NOW(), %s);''', (data[led],))
+        cursor.execute('''INSERT INTO WATER_PUMP (time, Activation) VALUES (NOW(), %s);''', (data[pump],))
         # Validar y guardar el estado del LED si está presente
         if "led" in data and isinstance(data["led"], (int, str)):
             cursor.execute('''INSERT INTO LEDS (time, Activation) VALUES (NOW(), %s);''', (data["led"],))
@@ -129,9 +130,7 @@ if __name__ == "__main__":
     cursor = init_cursor(db)
     lora = LoRa()
     processor = SensorDataProcessor()
-
     lora.initialize()
-
     while True:
         raw_data = lora.receive_data()
         if raw_data:
@@ -139,7 +138,6 @@ if __name__ == "__main__":
         else:
             print("No se recibieron datos, generando datos aleatorios...")
             processed_data = processor.generate_random_data()
-
         save_to_database(cursor, processed_data)
         db.commit()
         time.sleep(30)
