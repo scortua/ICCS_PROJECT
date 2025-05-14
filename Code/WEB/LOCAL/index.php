@@ -161,7 +161,9 @@
             'azul' => 'tabla-azul',
             'naranja' => 'tabla-naranja',
             'rojo' => 'tabla-roja',
-            'morado' => 'tabla-morada'
+            'morado' => 'tabla-morada',
+            'violeta' => 'tabla-violeta',
+            'gris' => 'tabla-gris'
         );
         
         // Colores asignados a cada sensor (esto puedes modificarlo según tus preferencias)
@@ -170,7 +172,9 @@
             'MQ_135' => 'azul',
             'LEDS' => 'morado',
             'WATER_PUMP' => 'naranja',
-            'YL' => 'rojo'
+            'YL' => 'rojo',
+            'productos' => 'violeta',
+            'transacciones' => 'gris'
             // Puedes añadir más sensores aquí
         );
 
@@ -184,7 +188,7 @@
             'CO2' => "SELECT MAX(co2) as max, MIN(co2) as min, AVG(co2) as avg FROM MQ_135",
             'Nitrógeno' => "SELECT MAX(N) as max, MIN(N) as min, AVG(N) as avg FROM MQ_135",
             'Suelo' => "SELECT 100 as max, 0 as min, 50 as avg",
-            'Agua' => "SELECT 100 as max, 0 as min, 50 as avg"
+            'Agua' => "SELECT 100 as max, 0 as min, 50 as avg",
         );
 
         echo '<div class="cuadros-container">';

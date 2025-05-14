@@ -54,6 +54,7 @@ def registrar_compra():
     cursor.execute("""
         UPDATE productos SET cantidad = cantidad - %s WHERE id = %s
     """, (cantidad, producto))
+    db.commit()
     cursor.close()
     db.close()
     return jsonify({'status': 'ok', 'msg': 'Compra registrada'})
