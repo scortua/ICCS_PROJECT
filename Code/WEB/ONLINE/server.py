@@ -3,8 +3,9 @@ from flask_cors import CORS
 import MySQLdb
 
 app = Flask(__name__)
+CORS(app)  # Habilitar CORS para todas las rutas
 
-# Configuración de la base de datos (igual que en tu script)
+# ConfiguraciÃ³n de la base de datos (igual que en tu script)
 db_config = {
     "host": "localhost",
     "user": "RPI4",
@@ -25,7 +26,7 @@ def get_productos():
     db.close()
     return jsonify(productos)
 
-@app.route('/compra', methods=['POST'])
+@app.route('/transacciones', methods=['POST'])
 def registrar_compra():
     data = request.get_json()
     comprador = data.get('comprador')
@@ -36,13 +37,13 @@ def registrar_compra():
     db = get_db_connection()
     cursor = db.cursor()
     cursor.execute("""
-        INSERT INTO compras (producto, comprador, vendedor, cantidad, hash, fecha)
-        VALUES (%s, %s, %s, %s, %s, NOW())
-    """, (producto, comprador, vendedor, cantidad, hash_bloque))
+        INSERT INTO transacciones (id, comprador, cantidad, vendedor, hash, producto)
+        VALUES (NULL, %s, %s, %s, %s, %s)
+    """, (comprador, cantidad, vendedor, hash_bloque, producto))
     db.commit()
     cursor.close()
     db.close()
     return jsonify({'status': 'ok', 'msg': 'Compra registrada'})
 
 if __name__ == '__main__':
-    app.run(host='192.168.14.215', port=8000, debug=True)
+    app.run(host='192.168.14.49', port=8000, debug=True)
