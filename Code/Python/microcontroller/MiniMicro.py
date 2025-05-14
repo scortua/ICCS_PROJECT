@@ -13,27 +13,23 @@ neopixel: tira de leds rgb 5v - pwm digital
 ------------------ 12 voltios --------------------
 ventilador: ventilador de 12v - pwm digital
 bomba: bomba de agua 12v - pwm digital
-
------------------- proper ------------------------
-wifi -> mqtt and HTTP
 """
-import time, network, requests, gc, random, reyax
-from machine import Pin, Timer, ADC, UART, PWM
+
+import time, gc, random, reyax
+from machine import Pin, ADC, UART, PWM
 from neopixel import Neopixel
 from PicoDHT22 import PicoDHT22
 
 # Configuración de pines
-RX_PIN = 1                              # pin de recepción LoRa
-TX_PIN = 0                              # pin de transmisión LoRa
 DHT_PIN = Pin(2, Pin.IN, Pin.PULL_UP)  # pin del sensor DHT22
 MQ135_PIN = Pin(28, Pin.IN)             # pin del sensor MQ135
-YL_PIN = Pin(26, Pin.IN)                # pin del sensor de ambiente (MQ135)
-PUMP_PIN = Pin(15)                       # pin de la bomba de agua
+YL_PIN = Pin(26, Pin.IN)                # pin del sensor de ambiente (YL-100)
+PUMP_PIN = Pin(15)                      # pin de la bomba de agua
 PUMP_FREQ = 25000                        # frecuencia de la bomba
-FAN_FREQ = 1000                        # frecuencia de la ventilador
-FAN_PIN = Pin(16)                        # pin del ventilador
-NEO_PIN = 17                             # pin del strip de LEDs
-NUMPIXELS = 12                          # número de LEDs en el strip
+FAN_FREQ = 1000                        # frecuencia del ventilador
+FAN_PIN = Pin(16)                       # pin del ventilador
+NEO_PIN = 17                            # pin del strip de LEDs
+NUMPIXELS = 24                          # número de LEDs en el strip
 # Define colors for the LEDs (R, G, B) values from 0-255
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
@@ -47,52 +43,15 @@ ppm = 0             # PPM del sensor MQ135
 ground = 0          # Valor del sensor YL-100
 led_rgb = 'off'     # Color del LED
 pump_ = 'off'       # Estado de la bomba
-url = 'https://api.openweathermap.org/data/2.5/weather?q=Bogota,CO&units=metric&appid=69285e08908ba2461be431c348d1e02d'
+
 # Inicialización de dispositivos
-uart0 = UART(0, baudrate=115200, tx=Pin(TX_PIN), rx=Pin(RX_PIN))  # Inicializar UART para LoRa
-lora = reyax.RYLR998(uart0)  # Inicializar LoRa
-lora.pulse
-lora.networkid = 5  # ID de la red LoRa
-lora.address = 1  # Dirección del nodo
-lora.rf_parameters = (9,7,1,12)
-dht_sensor = d = PicoDHT22(DHT_PIN)  # Inicializar sensor DHT22
+dht_sensor = PicoDHT22(DHT_PIN)  # Inicializar sensor DHT22
 mq_sensor = ADC(MQ135_PIN)  # Inicializar sensor MQ135
-yl_sensor = ADC(YL_PIN)  # Inicializar sensor de ambiente (MQ135)
+yl_sensor = ADC(YL_PIN)  # Inicializar sensor de ambiente (YL-100)
 pump = PWM(PUMP_PIN, PUMP_FREQ)  # Inicializar bomba
 fan = PWM(FAN_PIN, FAN_FREQ)  # Inicializar ventilador
 strip = Neopixel(NUMPIXELS, 0, NEO_PIN, "GRB")  # Inicializar strip de LEDs
 strip.brightness(100)  # Inicializar brillo del strip de LEDs
-
-timer_sensors = Timer()
-
-def wifi():
-    # wifi
-    ssid = 'CARPE_DIEM'           # nombre de la red wifi
-    password = 'Oing9002'   # contraseña de la red wifi
-    # wifi interface
-    wifi = network.WLAN(network.STA_IF)    # interfaz wifi
-    wifi.active(True)                      # activar la interfaz wifi
-    # conectar a la red wifi
-    while True:
-        wifi.connect(ssid, password)          # conectar a la red wifi
-        print(".", end="")  # print a dot without line break
-        if wifi.isconnected():                # si está conectado
-            break                             # salir del bucle
-    print("\nConectado a la red wifi")        # imprimir mensaje de conexión
-
-def extra():
-    response = requests.get(url)  # hacer una solicitud GET a la API
-    temp = 0  # inicializar temperatura
-    hum = 0   # inicializar humedad
-    try:
-        if response.status_code == 200:  # si la solicitud fue exitosa
-            response_json = response.json()  # convertir la respuesta a JSON
-            temp = response_json['main']['temp']  # obtener la temperatura
-            hum = response_json['main']['humidity']  # obtener la humedad
-            response.close()  # cerrar la respuesta
-    except Exception as e:
-        print(f"Error al obtener datos de la API: {e}")
-    return temp, hum  # devolver la temperatura y humedad
 
 # Function to update the LED strip with two different colors
 def update_led_strip(color1, color2):
@@ -111,23 +70,18 @@ def update_led_strip(color1, color2):
 def read_sensors():
     global temperature, humidity, ppm, ground 
     # Read DHT22 sensor (temperature and humidity)
-    temperature, humidity = dht_sensor.read()
-    if temperature is None or humidity is None or temperature == 0 or humidity == 0:
-        temperature, humidity = extra()
+    try:
+        temperature, humidity = dht_sensor.read()
+    except Exception as e:
+        print(f"Error reading DHT22: {e}")
+        temperature = 20
+        humidity = 70
     # Read MQ135 sensor (air quality)
     mq_value = mq_sensor.read_u16()
     ppm = (mq_value / 65535) * 3.3
     # Read YL-100 sensor (soil moisture)
     yl_value = yl_sensor.read_u16()
     ground = (yl_value / 65535) * 3.3
-
-# Función para enviar datos por LoRa
-def lorra():
-    global temperature, humidity, ppm, ground
-    # Formatear los datos como una cadena con todos los parámetros globales
-    data = f'{temperature:.2f},{humidity:.2f},{ppm:.2f},{ground:.2f},{led_rgb},{pump_}'
-    print(f"\nEnviando datos: {data}")
-    lora.send(2,data.encode("utf-8"))  # Enviar datos por LoRa
 
 # Función para controlar la bomba de agua
 def write_pump():
@@ -241,13 +195,11 @@ def write_fan():
 
 def main_loop():
     global temperature, humidity, ppm, ground
-    wifi()  # Connect to WiFi
     read_sensors()  # Read initial sensor values
     while True:
         update_led_strip(RED, PURPLE)  # Update the LED strip with the current colors
         write_fan() # Control the fan based on temperature and humidity
         write_pump() # Control the pump based on ppm and ground
-        lorra()
         time.sleep(33)  # Keep the program running
         gc.collect()    # Collect garbage to free up memory
         read_sensors()

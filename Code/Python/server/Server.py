@@ -1,6 +1,5 @@
 import serial, time, random, json, requests
 import MySQLdb
-import reyax
 
 db = MySQLdb.connect(host="localhost", 
                      user="RPI4",
@@ -10,7 +9,6 @@ db = MySQLdb.connect(host="localhost",
 cursor = db.cursor() # Crear un cursor
 
 uart0 = serial.Serial("/dev/ttyS0", baudrate=115200, timeout=1)
-lora = reyax.Reyax(uart0) # Inicializar el objeto Reyax
 
 #url = 'https://api.openweathermap.org/data/2.5/weather?q=Bogota,CO&units=metric&appid=69285e08908ba2461be431c348d1e02d'
 #response = requests.get(url)
@@ -19,7 +17,7 @@ lora = reyax.Reyax(uart0) # Inicializar el objeto Reyax
 # leds
 led = 'off'
 # bomba agua
-pump = 'It is off'
+pump = 'off'
 
 def verificar_(amb):
     if amb == 0:
