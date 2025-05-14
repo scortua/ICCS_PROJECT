@@ -26,6 +26,16 @@ def get_productos():
     db.close()
     return jsonify(productos)
 
+@app.route('/bloques', methods=['GET'])
+def get_bloques():
+    db = get_db_connection()
+    cursor = db.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT * FROM transacciones ORDER BY id ASC")
+    bloques = cursor.fetchall()
+    cursor.close()
+    db.close()
+    return jsonify(bloques)
+
 @app.route('/transacciones', methods=['POST'])
 def registrar_compra():
     data = request.get_json()
@@ -41,6 +51,9 @@ def registrar_compra():
         VALUES (NULL, %s, %s, %s, %s, %s)
     """, (comprador, cantidad, vendedor, hash_bloque, producto))
     db.commit()
+    cursor.execute("""
+        UPDATE productos SET cantidad = cantidad - %s WHERE id = %s
+    """, (cantidad, producto))
     cursor.close()
     db.close()
     return jsonify({'status': 'ok', 'msg': 'Compra registrada'})
