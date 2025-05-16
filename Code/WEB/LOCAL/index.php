@@ -187,8 +187,8 @@
             'Humedad' => "SELECT MAX(humedad) as max, MIN(humedad) as min, AVG(humedad) as avg FROM DHT22",
             'CO2' => "SELECT MAX(co2) as max, MIN(co2) as min, AVG(co2) as avg FROM MQ_135",
             'Nitrógeno' => "SELECT MAX(N) as max, MIN(N) as min, AVG(N) as avg FROM MQ_135",
-            'Suelo' => "SELECT 100 as max, 0 as min, 50 as avg",
-            'Agua' => "SELECT 100 as max, 0 as min, 50 as avg",
+            'Suelo' => "SELECT MAX(Percentage) as max, MIN(Percentage) as min, AVG(Percentage) as avg FROM YL",
+            'Agua' => "SELECT 100 as max, 50 as min, 70 as avg",
         );
 
         echo '<div class="cuadros-container">';

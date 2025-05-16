@@ -17,28 +17,35 @@ bomba: bomba de agua 12v - pwm digital
 ------------------ proper ------------------------
 wifi -> mqtt and HTTP
 """
-import time, network, requests, gc, random, reyax
+import time, network, ssl, requests, gc, random, reyax
 from machine import Pin, Timer, ADC, UART, PWM
+from umqtt.simple import MQTTClient
 from neopixel import Neopixel
 from PicoDHT22 import PicoDHT22
 
 # Configuración de pines
 RX_PIN = 1                              # pin de recepción LoRa
 TX_PIN = 0                              # pin de transmisión LoRa
-DHT_PIN = Pin(2, Pin.IN, Pin.PULL_UP)  # pin del sensor DHT22
-MQ135_PIN = Pin(28, Pin.IN)             # pin del sensor MQ135
-YL_PIN = Pin(26, Pin.IN)                # pin del sensor de ambiente (MQ135)
-PUMP_PIN = Pin(15)                       # pin de la bomba de agua
-PUMP_FREQ = 25000                        # frecuencia de la bomba
-FAN_FREQ = 1000                        # frecuencia de la ventilador
-FAN_PIN = Pin(16)                        # pin del ventilador
-NEO_PIN = 17                             # pin del strip de LEDs
-NUMPIXELS = 12                          # número de LEDs en el strip
+DHT_PIN = Pin(2, Pin.IN, Pin.PULL_UP)   # pin del sensor DHT22
+MQ135_PIN = Pin(26, Pin.IN)             # pin del sensor MQ135
+YL_PIN = Pin(28, Pin.IN)                # pin del sensor de ambiente (MQ135)
+PUMP_PIN = Pin(15)                      # pin de la bomba de agua
+PUMP_FREQ = 25000                       # frecuencia de la bomba
+FAN_FREQ = 1000                         # frecuencia de la ventilador
+FAN_PIN = Pin(16)                       # pin del ventilador
+NEO_PIN = 3                             # pin del strip de LEDs
+NUMPIXELS = 24                          # número de LEDs en el strip
 # Define colors for the LEDs (R, G, B) values from 0-255
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 PURPLE = (180, 0, 255)
 OFF = (0, 0, 0)
+# Define mqtt broker
+MQTT_SERVER = "192.168.1.65"  # MQTT broker address
+MQTT_PORT = 1883  # Port for secure MQTT connection
+MQTT_CLIENT_ID = "Invernadero"  # Unique client ID for the MQTT client
+MQTT_USER = "Invernadero"  # MQTT username (if required)
+MQTT_PASSWORD = "1234567890"  # MQTT password (if required)
 
 # Variables globales
 temperature = 0.0   # Temperatura en °C
@@ -63,7 +70,13 @@ fan = PWM(FAN_PIN, FAN_FREQ)  # Inicializar ventilador
 strip = Neopixel(NUMPIXELS, 0, NEO_PIN, "GRB")  # Inicializar strip de LEDs
 strip.brightness(100)  # Inicializar brillo del strip de LEDs
 
-timer_sensors = Timer()
+client = MQTTClient(
+    client_id=MQTT_CLIENT_ID,
+    server=MQTT_SERVER,
+    port=MQTT_PORT,
+    user=MQTT_USER,
+    password=MQTT_PASSWORD
+    )
 
 def wifi():
     # wifi
@@ -78,7 +91,16 @@ def wifi():
         print(".", end="")  # print a dot without line break
         if wifi.isconnected():                # si está conectado
             break                             # salir del bucle
+        time.sleep(0.5)                     # esperar 0.5 segundos
     print("\nConectado a la red wifi")        # imprimir mensaje de conexión
+
+def mqtt():
+    global temperature, humidity, ppm, ground, pump_, led_rgb
+    client.connect()
+    topic = "Invernadero"  # topic to publish
+    msg = "{:.2f},{:.2f},{:.2f},{:.2f},{},{}".format(temperature, humidity, ppm, ground, led_rgb, pump_)  # message to publish
+    client.publish(topic, msg)  # publish message
+    client.disconnect()  # disconnect from MQTT broker
 
 def extra():
     response = requests.get(url)  # hacer una solicitud GET a la API
@@ -96,12 +118,12 @@ def extra():
 
 # Function to update the LED strip with two different colors
 def update_led_strip(color1, color2):
-    # Set first 6 LEDs to color1
-    for i in range(NUMPIXELS//2):
-        strip.set_pixel(i, color1)
-    # Set last 6 LEDs to color2
-    for i in range(NUMPIXELS//2, NUMPIXELS):
-        strip.set_pixel(i, color2)
+    # Set even-indexed LEDs to color1 and odd-indexed LEDs to color2
+    for i in range(NUMPIXELS):
+        if i % 2 == 0:  # Even index
+            strip.set_pixel(i, color1)
+        else:  # Odd index
+            strip.set_pixel(i, color2)
     # Apply the changes
     led_rgb = 'la tira de led es de color ' + str(color1) + ' y ' + str(color2)
     gc.collect()  # collect garbage
@@ -131,51 +153,23 @@ def lorra():
 
 # Función para controlar la bomba de agua
 def write_pump():
-    global ppm, ground
-    # Calculate how dry the soil is (0 = wet, 100 = completely dry)
-    dryness_percent = max(0, min(100, (1 - ground/3.3) * 100))
-    # Calculate air quality percentage (0 = good, 100 = poor)
-    air_quality_percent = max(0, min(100, ppm/3.3 * 100))
-    # Combined score (weighted average: 70% soil, 30% air)
-    watering_need = 0.7 * dryness_percent + 0.3 * air_quality_percent
-    # Set pump duty cycle based on watering need (in 5% increments up to 40%)
-    # 40% to 0% (0 = fully on, 65535 = fully off)
-    if watering_need < 20:
-        # Less than 20% need - pump off
-        duty = 65535  # Fully OFF (PWM = 0%)
-        pump_percent = 0
-    elif watering_need < 30:
-        # 20-30% need - pump 5%
-        duty = int(65535 * 0.95)  # 95% off = 5% on
-        pump_percent = 5
-    elif watering_need < 40:
-        # 30-40% need - pump 10%
-        duty = int(65535 * 0.90)  # 90% off = 10% on
-        pump_percent = 10
-    elif watering_need < 50:
-        # 40-50% need - pump 15%
-        duty = int(65535 * 0.85)  # 85% off = 15% on
-        pump_percent = 15
-    elif watering_need < 60:
-        # 50-60% need - pump 20%
-        duty = int(65535 * 0.80)  # 80% off = 20% on
-        pump_percent = 20
-    elif watering_need < 70:
-        # 60-70% need - pump 25%
-        duty = int(65535 * 0.75)  # 75% off = 25% on
-        pump_percent = 25
-    elif watering_need < 80:
-        # 70-80% need - pump 30%
-        duty = int(65535 * 0.70)  # 70% off = 30% on
-        pump_percent = 30
-    elif watering_need < 90:
-        # 80-90% need - pump 35%
-        duty = int(65535 * 0.65)  # 65% off = 35% on
+    global ground, pump_
+    # 100% is off and 0% is on
+    # Calculate the watering need based on soil moisture
+    watering_need = (ground / 3.3) * 100
+    # Calculate the duty cycle for the pump
+    if watering_need < 15:
+        pump_percent = 100
+        duty = int(0.0 * 65535)
+        pump_ = 'la bomba esta al 100%'
+    elif watering_need > 40 and watering_need < 60:
         pump_percent = 35
+        duty = int(0.35 * 65535)
+        pump_ = 'la bomba esta al 35%'
     else:
-        # 90-100% need - pump 40% (maximum)
-        duty = int(65535 * 0.60)  # 60% off = 40% on
-        pump_percent = 40
+        pump_percent = 0
+        duty = int(1 * 65535)
+        pump_ = 'la bomba esta al 0%'
     # Apply duty cycle to pump
     pump.duty_u16(duty)
     pump_ = f'la bomba esta al {pump_percent}%'
@@ -184,7 +178,7 @@ def write_pump():
 
 # Función para controlar el ventilador
 def write_fan():
-    global temperature
+    global temperature, fan_
     # Define setpoint and constants
     temp_setpoint = 18   # Desired temperature in Celsius
     # Calculate the temperature difference (how much above setpoint)
@@ -252,5 +246,6 @@ def main_loop():
         gc.collect()    # Collect garbage to free up memory
         read_sensors()
         print(f"\nMemoria libre: {gc.mem_free()} bytes") # Print free memory
+        mqtt()  # Send data to MQTT broker
 
 main_loop()  # Start the main loop

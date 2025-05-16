@@ -2,6 +2,8 @@ import serial
 import time
 import MySQLdb
 import random
+import paho.mqtt.client as mqtt
+import queue
 
 # Configuración de la base de datos
 def connect_to_db():
@@ -41,6 +43,32 @@ class LoRa:
             print(f"Datos recibidos: {rx_data}")
         return rx_data
 
+# MQTT Handler
+class MQTTHandler:
+    def __init__(self, broker="localhost", port=1883, topic="invernadero/datos"):
+        self.broker = broker
+        self.port = port
+        self.topic = topic
+        self.q = queue.Queue()
+        self.client = mqtt.Client()
+        self.client.on_message = self.on_message
+
+    def on_message(self, client, userdata, msg):
+        payload = msg.payload.decode()
+        print(f"Mensaje MQTT recibido: {payload}")
+        self.q.put(payload)
+
+    def connect_and_subscribe(self):
+        self.client.connect(self.broker, self.port, 60)
+        self.client.subscribe(self.topic)
+        self.client.loop_start()
+
+    def get_message(self, timeout=2):
+        try:
+            return self.q.get(timeout=timeout)
+        except queue.Empty:
+            return None
+
 # Procesador de datos
 class SensorDataProcessor:
     def __init__(self):
@@ -48,14 +76,14 @@ class SensorDataProcessor:
         self.temp_min = 17.0
         self.hum_max = 75.0
         self.hum_min = 45.0
-        self.amb_max = 3.3
-        self.amb_min = 0
-        self.dirt_max = 3.3
+        self.amb_max = 1000
+        self.amb_min = 400
+        self.dirt_max = 1000
         self.dirt_min = 0
 
     def process_data(self, raw_data):
         data = raw_data.replace("+RCV=", "").split(",")
-        if len(data) >= 10:  # Changed from 8 to 10 since we're expecting 10 values
+        if len(data) >= 10:
             id, data_len, temp, hum, amb, dirt, led, water, rssi, snr = data
             n, co2 = self.calculate_ambient_values(float(amb))
             return {
@@ -107,14 +135,12 @@ class SensorDataProcessor:
 
 # Guardar datos en la base de datos
 def save_to_database(cursor, data):
-    # Validar que los datos sean correctos antes de insertarlos
     try:
         cursor.execute('''INSERT INTO DHT22 (time, Temperatura, Humedad) VALUES (NOW(), %s, %s);''', (data["temp"], data["hum"]))
         cursor.execute('''INSERT INTO MQ_135 (time, CO2, N) VALUES (NOW(), %s, %s);''', (data["co2"], data["n"]))
         cursor.execute('''INSERT INTO YL (time, Percentage) VALUES (NOW(), %s);''', (data["dirt"],))
         cursor.execute('''INSERT INTO LEDS (time, Activation) VALUES (NOW(), %s);''', (data["led"],))
         cursor.execute('''INSERT INTO WATER_PUMP (time, Activation) VALUES (NOW(), %s);''', (data["water"],))
-        
         print("Datos guardados en la base de datos.")
     except Exception as e:
         print(f"Error al guardar en la base de datos: {e}")
@@ -125,14 +151,26 @@ if __name__ == "__main__":
     cursor = init_cursor(db)
     lora = LoRa()
     processor = SensorDataProcessor()
+    mqtt_handler = MQTTHandler(broker="localhost", port=1883, topic="invernadero/datos")
+    mqtt_handler.connect_and_subscribe()
     lora.initialize()
     while True:
+        # 1. Intentar recibir por LoRa
         raw_data = lora.receive_data()
         if raw_data:
+            print("Datos recibidos por LoRa.")
             processed_data = processor.process_data(raw_data)
         else:
-            print("No se recibieron datos, generando datos aleatorios...")
-            processed_data = processor.generate_random_data()
+            # 2. Intentar recibir por MQTT
+            print("No se recibieron datos por LoRa, intentando MQTT...")
+            mqtt_data = mqtt_handler.get_message(timeout=5)
+            if mqtt_data:
+                print("Datos recibidos por MQTT.")
+                processed_data = processor.process_data(mqtt_data)
+            else:
+                # 3. Si tampoco hay MQTT, usar random
+                print("No se recibieron datos por MQTT, generando datos aleatorios...")
+                processed_data = processor.generate_random_data()
         save_to_database(cursor, processed_data)
         db.commit()
         time.sleep(30)
